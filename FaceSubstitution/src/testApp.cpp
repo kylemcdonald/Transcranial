@@ -28,9 +28,21 @@ void testApp::setup() {
 	if(faces.size()!=0){
 		loadFace(faces.getPath(currentFace));
 	}
+    
+    binaryEffects.load("", "BinaryEffects.frag");
+    binary.allocate(cam.getWidth(), cam.getHeight());
+    displacement.load("Displacement");
 }
 
 void testApp::update() {
+    binary.begin();
+    binaryEffects.begin();
+    binaryEffects.setUniform3f("iResolution", cam.getWidth(), cam.getHeight(), 0);
+    binaryEffects.setUniform1f("iGlobalTime", ofGetElapsedTimef());
+    cam.draw(0, 0);
+    binaryEffects.end();
+    binary.end();
+    
 	cam.update();
 	if(cam.isFrameNew()) {
 		camTracker.update(toCv(cam));
@@ -44,6 +56,10 @@ void testApp::update() {
 			maskFbo.begin();
 			ofClear(0, 255);
 			camMesh.draw();
+            ofPushStyle();
+            ofEnableBlendMode(OF_BLENDMODE_MULTIPLY);
+            binary.draw(0, 0);
+            ofPopStyle();
 			maskFbo.end();
 			
 			srcFbo.begin();
@@ -62,6 +78,9 @@ void testApp::update() {
 void testApp::draw() {
     ofBackground(0);
 	ofSetColor(255);
+    
+    float scale = ofGetWidth() / (float) cam.getWidth();
+    ofScale(scale, scale);
 	
 	if(src.getWidth() > 0 && cloneReady) {
         float w = clone.getTexture().getWidth();
@@ -75,6 +94,7 @@ void testApp::draw() {
         clone.getTexture().draw(w, h, w  / 2, h / 2);
 		clone.getTexture().setAnchorPercent(0, 0);
         ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+        camTracker.draw();
 	} else {
 		cam.draw(0, 0);
 	}
@@ -87,6 +107,9 @@ void testApp::draw() {
 	} else if(!srcTracker.getFound()) {
 		drawHighlightString("image face not found", 10, 30);
 	}
+    
+    ofScale(.5, .5);
+//    maskFbo.draw(0, 0);
 }
 
 void testApp::loadFace(string face){
@@ -102,6 +125,9 @@ void testApp::dragEvent(ofDragInfo dragInfo) {
 }
 
 void testApp::keyPressed(int key){
+    if(key == 'f') {
+        ofToggleFullscreen();
+    }
 	switch(key){
 	case OF_KEY_UP:
 		currentFace++;

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>D64C5FB2-17D2-49C3-AD7B-65269BB2F583</string>
+	<key>IDESourceControlProjectName</key>
+	<string>ofApp</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>002B77A8-D5DD-49B6-A396-1E292937FB14</key>
+		<string>ssh://github.com/kylemcdonald/openFrameworks.git</string>
+		<key>BFE55323-06DA-4396-BE0D-129A4552008C</key>
+		<string>ssh://github.com/kylemcdonald/Transcranial.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>apps/Transcranial/Blending/ofApp.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>002B77A8-D5DD-49B6-A396-1E292937FB14</key>
+		<string>../../../../..</string>
+		<key>BFE55323-06DA-4396-BE0D-129A4552008C</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>ssh://github.com/kylemcdonald/Transcranial.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>002B77A8-D5DD-49B6-A396-1E292937FB14</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>002B77A8-D5DD-49B6-A396-1E292937FB14</string>
+			<key>IDESourceControlWCCName</key>
+			<string>openFrameworks</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>BFE55323-06DA-4396-BE0D-129A4552008C</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Transcranial</string>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -107,6 +107,29 @@
 		1E95EFD35ED9C5D97F2F015E /* timer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = timer.h; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/timer.h; sourceTree = SOURCE_ROOT; };
 		276A3F5318BA741500808231 /* testApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = testApp.cpp; sourceTree = "<group>"; };
 		276A3F5418BA741500808231 /* testApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = testApp.h; sourceTree = "<group>"; };
+		27AED50918E1A02600010D92 /* BinaryEffects.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = BinaryEffects.frag; sourceTree = "<group>"; };
+		27AED50A18E1A02600010D92 /* BlurAlpha.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = BlurAlpha.frag; sourceTree = "<group>"; };
+		27AED50B18E1A02600010D92 /* Clone.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = Clone.frag; sourceTree = "<group>"; };
+		27AED50C18E1A02600010D92 /* Clone.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = Clone.vert; sourceTree = "<group>"; };
+		27AED50D18E1A02600010D92 /* Displacement.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = Displacement.frag; sourceTree = "<group>"; };
+		27AED50E18E1A02600010D92 /* Displacement.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = Displacement.vert; sourceTree = "<group>"; };
+		27AED51018E1A02600010D92 /* 0-Ai-Weiwei-001.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "0-Ai-Weiwei-001.jpg"; sourceTree = "<group>"; };
+		27AED51118E1A02600010D92 /* 0-daito.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "0-daito.jpg"; sourceTree = "<group>"; };
+		27AED51218E1A02600010D92 /* 2-tatoo.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "2-tatoo.jpg"; sourceTree = "<group>"; };
+		27AED51318E1A02600010D92 /* 3-skull.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "3-skull.jpg"; sourceTree = "<group>"; };
+		27AED51418E1A02600010D92 /* 72139798.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 72139798.jpg; sourceTree = "<group>"; };
+		27AED51518E1A02600010D92 /* bradpit.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = bradpit.jpg; sourceTree = "<group>"; };
+		27AED51618E1A02600010D92 /* emma_watson_3.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = emma_watson_3.jpg; sourceTree = "<group>"; };
+		27AED51718E1A02600010D92 /* michael-jackson2.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "michael-jackson2.jpg"; sourceTree = "<group>"; };
+		27AED51818E1A02600010D92 /* obama.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = obama.jpg; sourceTree = "<group>"; };
+		27AED51918E1A02600010D92 /* psy.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = psy.jpg; sourceTree = "<group>"; };
+		27AED51A18E1A02600010D92 /* rihanna-rihanna1.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "rihanna-rihanna1.jpg"; sourceTree = "<group>"; };
+		27AED51B18E1A02600010D92 /* Scarlett_Johansson.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Scarlett_Johansson.jpg; sourceTree = "<group>"; };
+		27AED51D18E1A02600010D92 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		27AED51E18E1A02600010D92 /* face.con */ = {isa = PBXFileReference; lastKnownFileType = text; path = face.con; sourceTree = "<group>"; };
+		27AED51F18E1A02600010D92 /* face.tracker */ = {isa = PBXFileReference; lastKnownFileType = text; path = face.tracker; sourceTree = "<group>"; };
+		27AED52018E1A02600010D92 /* face.tri */ = {isa = PBXFileReference; lastKnownFileType = text; path = face.tri; sourceTree = "<group>"; };
+		27AED52118E1A02600010D92 /* face2.tracker */ = {isa = PBXFileReference; lastKnownFileType = text; path = face2.tracker; sourceTree = "<group>"; };
 		27F9467B18DC58AC00EE4EF5 /* Clone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Clone.cpp; sourceTree = "<group>"; };
 		27F9467C18DC58AC00EE4EF5 /* Clone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Clone.h; sourceTree = "<group>"; };
 		2E411F99E3AB7154484B4F96 /* kmeans_index.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = kmeans_index.h; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/kmeans_index.h; sourceTree = SOURCE_ROOT; };
@@ -392,6 +415,53 @@
 				1E95EFD35ED9C5D97F2F015E /* timer.h */,
 			);
 			name = flann;
+			sourceTree = "<group>";
+		};
+		27AED50818E1A02600010D92 /* data */ = {
+			isa = PBXGroup;
+			children = (
+				27AED50918E1A02600010D92 /* BinaryEffects.frag */,
+				27AED50A18E1A02600010D92 /* BlurAlpha.frag */,
+				27AED50B18E1A02600010D92 /* Clone.frag */,
+				27AED50C18E1A02600010D92 /* Clone.vert */,
+				27AED50D18E1A02600010D92 /* Displacement.frag */,
+				27AED50E18E1A02600010D92 /* Displacement.vert */,
+				27AED50F18E1A02600010D92 /* faces */,
+				27AED51C18E1A02600010D92 /* model */,
+			);
+			name = data;
+			path = bin/data;
+			sourceTree = "<group>";
+		};
+		27AED50F18E1A02600010D92 /* faces */ = {
+			isa = PBXGroup;
+			children = (
+				27AED51018E1A02600010D92 /* 0-Ai-Weiwei-001.jpg */,
+				27AED51118E1A02600010D92 /* 0-daito.jpg */,
+				27AED51218E1A02600010D92 /* 2-tatoo.jpg */,
+				27AED51318E1A02600010D92 /* 3-skull.jpg */,
+				27AED51418E1A02600010D92 /* 72139798.jpg */,
+				27AED51518E1A02600010D92 /* bradpit.jpg */,
+				27AED51618E1A02600010D92 /* emma_watson_3.jpg */,
+				27AED51718E1A02600010D92 /* michael-jackson2.jpg */,
+				27AED51818E1A02600010D92 /* obama.jpg */,
+				27AED51918E1A02600010D92 /* psy.jpg */,
+				27AED51A18E1A02600010D92 /* rihanna-rihanna1.jpg */,
+				27AED51B18E1A02600010D92 /* Scarlett_Johansson.jpg */,
+			);
+			path = faces;
+			sourceTree = "<group>";
+		};
+		27AED51C18E1A02600010D92 /* model */ = {
+			isa = PBXGroup;
+			children = (
+				27AED51D18E1A02600010D92 /* .gitignore */,
+				27AED51E18E1A02600010D92 /* face.con */,
+				27AED51F18E1A02600010D92 /* face.tracker */,
+				27AED52018E1A02600010D92 /* face.tri */,
+				27AED52118E1A02600010D92 /* face2.tracker */,
+			);
+			path = model;
 			sourceTree = "<group>";
 		};
 		2B86176FA97BFB2BEE1F2F83 /* ofxFaceTracker */ = {
@@ -751,6 +821,7 @@
 			children = (
 				E4B6FCAD0C3E899E008CF71C /* openFrameworks-Info.plist */,
 				E4EB6923138AFD0F00A09F29 /* Project.xcconfig */,
+				27AED50818E1A02600010D92 /* data */,
 				E4B69E1C0A3A1BDC003C02F2 /* src */,
 				E4EEC9E9138DF44700A80321 /* openFrameworks */,
 				BB4B014C10F69532006C3DED /* addons */,

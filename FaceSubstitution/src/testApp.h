@@ -29,4 +29,8 @@ public:
 
 	ofDirectory faces;
 	int currentFace;
+    
+    ofShader binaryEffects;
+    ofFbo binary;
+    ofShader displacement;
 };
