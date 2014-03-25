@@ -8,6 +8,7 @@ void testApp::setup() {
 #endif
 	ofSetVerticalSync(true);
 	cloneReady = false;
+    cam.setDeviceID(0);
 	cam.initGrabber(1280, 720);
 	clone.setup(cam.getWidth(), cam.getHeight());
 	ofFbo::Settings settings;
