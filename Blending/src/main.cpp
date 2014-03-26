@@ -7,9 +7,9 @@ public:
     ofVideoPlayer video;
     
 	void setup() {
-        blend.load("blend");
         ofSetDataPathRoot("../../../../../SharedData/");
-        video.loadMovie("milos-extreme.mov");
+        blend.load("shaders/blend");
+        video.loadMovie("videos/milos-extreme.mov");
         video.play();
         bg.allocate(video.getWidth(), video.getHeight());
         fg.allocate(video.getWidth(), video.getHeight());
