@@ -3,13 +3,18 @@
 using namespace ofxCv;
 
 void testApp::setup() {
-#ifdef TARGET_OSX
-	//ofSetDataPathRoot("../data/");
-#endif
+    ofSetDataPathRoot("../../../../../SharedData/");
 	ofSetVerticalSync(true);
 	cloneReady = false;
+    
+#ifdef USE_VIDEO
+    cam.loadMovie("videos/milos-talking.mov");
+    cam.play();
+#else
     cam.setDeviceID(0);
 	cam.initGrabber(1280, 720);
+#endif
+    
 	clone.setup(cam.getWidth(), cam.getHeight());
 	ofFbo::Settings settings;
 	settings.width = cam.getWidth();
@@ -29,9 +34,11 @@ void testApp::setup() {
 		loadFace(faces.getPath(currentFace));
 	}
     
-    binaryEffects.load("", "BinaryEffects.frag");
+    binaryEffects.load("", "shaders/BinaryEffects.frag");
     binary.allocate(cam.getWidth(), cam.getHeight());
-    displacement.load("Displacement");
+    displacement.load("shaders/Displacement");
+    
+    faceOsc.osc.setup("localhost", 8338);
 }
 
 void testApp::update() {
@@ -46,6 +53,7 @@ void testApp::update() {
 	cam.update();
 	if(cam.isFrameNew()) {
 		camTracker.update(toCv(cam));
+        faceOsc.sendFaceOsc(camTracker);
 		
 		cloneReady = camTracker.getFound();
 		if(cloneReady) {
@@ -136,7 +144,7 @@ void testApp::keyPressed(int key){
 		currentFace--;
 		break;
 	}
-	currentFace = ofClamp(currentFace,0,faces.size());
+	currentFace = ofClamp(currentFace,0,faces.size()-1);
 	if(faces.size()!=0){
 		loadFace(faces.getPath(currentFace));
 	}

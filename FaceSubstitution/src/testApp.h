@@ -1,9 +1,11 @@
 #pragma once
 
+#define USE_VIDEO
+
 #include "ofMain.h"
 #include "ofxCv.h"
 #include "Clone.h"
-#include "ofxFaceTracker.h"
+#include "FaceOsc.h"
 #include "ofxFaceTrackerThreaded.h"
 
 class testApp : public ofBaseApp {
@@ -15,9 +17,15 @@ public:
 	void loadFace(string face);
 	
 	void keyPressed(int key);
-
+    
+    FaceOsc faceOsc;
 	ofxFaceTrackerThreaded camTracker;
+    
+#ifdef USE_VIDEO
+    ofVideoPlayer cam;
+#else
 	ofVideoGrabber cam;
+#endif
 	
 	ofxFaceTracker srcTracker;
 	ofImage src;
