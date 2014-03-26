@@ -8,7 +8,7 @@ public:
     
 	void setup() {
         ofSetDataPathRoot("../../../../../SharedData/");
-        blend.load("shaders/blend");
+        blend.load("shaders/Lighten");
         video.loadMovie("videos/milos-extreme.mov");
         video.play();
         bg.allocate(video.getWidth(), video.getHeight());
