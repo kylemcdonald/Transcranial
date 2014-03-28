@@ -1,0 +1,11 @@
+{
+	"preset_data" : [ 		{
+			"number" : 23,
+			"data" : [ 5, "<invalid>", "flonum", "float", 0.0, 5, "<invalid>", "flonum", "float", 0.0, 5, "<invalid>", "flonum", "float", 0.0, 5, "<invalid>", "flonum", "float", 0.0, 5, "<invalid>", "flonum", "float", 0.0, 5, "<invalid>", "flonum", "float", 0.0, 5, "<invalid>", "flonum", "float", 0.0, 5, "<invalid>", "flonum", "float", 0.0 ]
+		}
+, 		{
+			"number" : 24,
+			"data" : [ 5, "obj-70", "flonum", "float", 0.0, 5, "obj-72", "flonum", "float", 0.0, 5, "obj-64", "flonum", "float", 0.0, 5, "obj-66", "flonum", "float", 0.0, 5, "obj-58", "flonum", "float", 0.0, 5, "obj-60", "flonum", "float", 0.0, 5, "obj-32", "flonum", "float", 0.0, 5, "obj-30", "flonum", "float", 0.0 ]
+		}
+ ]
+}
