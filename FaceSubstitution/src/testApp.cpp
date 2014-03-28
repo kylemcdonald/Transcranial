@@ -2,6 +2,13 @@
 
 using namespace ofxCv;
 
+void testApp::setupGui() {
+    gui = new ofxUICanvas();
+    gui->addToggle("Debug", &debug);
+    gui->addSlider("Offset", 0, 600, &offset);
+    gui->autoSizeToFitWidgets();
+}
+
 void testApp::setup() {
     ofSetDataPathRoot("../../../../../SharedData/");
 	ofSetVerticalSync(true);
@@ -11,7 +18,7 @@ void testApp::setup() {
     cam.loadMovie("videos/milos-talking.mov");
     cam.play();
 #else
-    cam.setDeviceID(1);
+    cam.setDeviceID(0);
 	cam.initGrabber(1280, 720);
 #endif
     
@@ -48,6 +55,10 @@ void testApp::setup() {
     slitScan.setTimeDelayAndWidth(60, 0);
     
     lighten.load("shaders/Lighten");
+    
+    motionAmplifier.setup(1920 / 4, 1080 / 4, 1);
+    
+    setupGui();
 }
 
 void testApp::exit() {
@@ -56,22 +67,21 @@ void testApp::exit() {
 }
 
 void testApp::update() {
-    binary.begin();
-    binaryEffects.begin();
-    binaryEffects.setUniform3f("iResolution", cam.getWidth(), cam.getHeight(), 0);
-    binaryEffects.setUniform1f("iGlobalTime", ofGetElapsedTimef());
-    cam.draw(0, 0);
-    binaryEffects.end();
-    binary.end();
-    
 	cam.update();
 	if(cam.isFrameNew()) {
-        slitScan.addImage(cam);
 		camTracker.update(toCv(cam));
         faceOsc.sendFaceOsc(camTracker);
 		
 		cloneReady = camTracker.getFound();
 		if(cloneReady) {
+            binary.begin();
+            binaryEffects.begin();
+            binaryEffects.setUniform3f("iResolution", cam.getWidth(), cam.getHeight(), 0);
+            binaryEffects.setUniform1f("iGlobalTime", ofGetElapsedTimef());
+            cam.draw(0, 0);
+            binaryEffects.end();
+            binary.end();
+            
 			ofMesh camMesh = camTracker.getImageMesh();
 			camMesh.clearTexCoords();
 			camMesh.addTexCoords(srcPoints);
@@ -95,6 +105,7 @@ void testApp::update() {
 			clone.setStrength(16);
 			clone.update(srcFbo.getTextureReference(), cam.getTextureReference(), maskFbo.getTextureReference());
 		}
+        slitScan.addImage(cam);
 	}
 }
 
@@ -103,29 +114,27 @@ void testApp::draw() {
 	ofSetColor(255);
     
     float scale = ofGetWidth() / (float) cam.getWidth();
+    ofPushMatrix();
     ofScale(scale, scale);
 	
     float w = cam.getWidth();
     float h = cam.getHeight();
     lighten.begin();
     lighten.setUniform2f("resolution", w, h);
-    lighten.setUniformTexture("a", cam, 0);
-    lighten.setUniformTexture("b", slitScan.getOutputImage(), 1);
-    lighten.setUniform2f("offset", mouseX, 0);
+    lighten.setUniformTexture("a", clone.getTexture(), 1);
+    lighten.setUniformTexture("b", slitScan.getOutputImage(), 2);
+    lighten.setUniform2f("offset", offset, 0);
     cam.draw(0, 0);
     lighten.end();
     
-	if(!camTracker.getFound()) {
-		drawHighlightString("camera face not found", 10, 10);
-	}
-	if(src.getWidth() == 0) {
-		drawHighlightString("drag an image here", 10, 30);
-	} else if(!srcTracker.getFound()) {
-		drawHighlightString("image face not found", 10, 30);
-	}
+    if(debug) {
+        camTracker.draw();
+        ofScale(.2, .2);
+        maskFbo.draw(0, 0);
+        srcFbo.draw(0, 720);
+    }
     
-    ofScale(.5, .5);
-//    maskFbo.draw(0, 0);
+    ofPopMatrix();
 }
 
 void testApp::loadFace(string face){

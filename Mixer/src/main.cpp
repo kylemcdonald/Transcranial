@@ -5,7 +5,7 @@
 #include "ofxUI.h"
 #include "ofxOsc.h"
 
-#define USE_VIDEO
+//#define USE_VIDEO
 
 using namespace ofxCv;
 using namespace cv;
@@ -13,25 +13,30 @@ using namespace cv;
 class FrameDifference {
 private:
     Mat a, b, difference;
-    float mean;
+    double meanVal, minVal, maxVal;
 public:
     template <class F>
     void update(F& frame) {
         cv::Mat frameMat = toCv(frame);
         update(frameMat);
     }
-    float update(Mat& frame) {
+    void update(Mat& frame) {
         cv::cvtColor(frame, a, CV_RGB2GRAY);
         absdiff(a, b, difference);
         copy(a, b);
-        mean = cv::mean(difference)[0] / 255.;
-        return mean;
+        meanVal = cv::mean(difference)[0] / 255.;
+        cv::minMaxIdx(difference, &minVal, &maxVal);
+        minVal /= 255;
+        maxVal /= 255;
     }
     Mat& getDifference() {
         return difference;
     }
     float getMean() {
-        return mean;
+        return meanVal;
+    }
+    float getMax() {
+        return maxVal;
     }
 };
 
@@ -52,7 +57,7 @@ public:
     
     bool debug = false;
     bool showVideo = false;
-    float minAreaRadius = 10;
+    float minAreaRadius = 16;
     float stability = 1.;//.6; //1.
     float repetitionSteps = 1;//10;
     float threshold = 60;
@@ -66,6 +71,8 @@ public:
     float scaleNoise = .1;//.5;
     float motionMin = .02 / 5; // .01
     float motionMax = .02 / 3; //.005;
+    float verticalOffset = 0;
+    float bodyCenterSmoothing = .5;
     
     float motionValue = 0;
     float smoothedMotionValue = 0;
@@ -74,12 +81,15 @@ public:
     ofxUISlider* motionSlider;
     ofxUISlider* smoothedMotionSlider;
     
+    ofVec2f bodyCenter;
+    
     void setupGui() {
         gui = new ofxUICanvas();
         gui->addLabel("Settings");
         gui->addToggle("Debug", &debug);
         gui->addToggle("Show video", &showVideo);
         gui->addSpacer();
+        gui->addSlider("Vertical offset", -200, 200, &verticalOffset);
         gui->addSlider("Min area radius", 0, 50, &minAreaRadius);
         gui->addSlider("Stability", 0, 1, &stability);
         gui->addSlider("Repetition steps", 0, 40, &repetitionSteps);
@@ -98,6 +108,7 @@ public:
         gui->addSlider("Motion Smoothing-", 0, 1, &motionSmoothingDown);
         gui->addSlider("Motion min", 0, .02, &motionMin);
         gui->addSlider("Motion max", 0, .02, &motionMax);
+        gui->addSlider("Body center smoothing", 0, 1, &bodyCenterSmoothing);
         gui->autoSizeToFitWidgets();
     }
     
@@ -156,6 +167,13 @@ public:
 #else
             contours.findContours(video.getLivePixels());
 #endif
+            int n = contours.size();
+            ofVec2f curBodyCenter;
+            for(int i = 0; i < n; i++) {
+                curBodyCenter += toOf(contours.getCenter(i));
+            }
+            curBodyCenter /= n;
+            bodyCenter.interpolate(curBodyCenter, bodyCenterSmoothing);
         }
     }
     
@@ -172,6 +190,7 @@ public:
         if(video.isLiveReady()) {
             float scaleFactor = ofGetWidth() / (float) video.getWidth();
             ofScale(scaleFactor, scaleFactor);
+            ofTranslate(0, -verticalOffset);
         }
 #endif
         
@@ -196,6 +215,9 @@ public:
                 }
                 toOf(minRect).draw();
             }
+            ofNoFill();
+            ofSetColor(cyanPrint);
+            ofCircle(bodyCenter, 10);
             ofPopStyle();
         }
         
