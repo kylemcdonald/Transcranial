@@ -1,16 +1,19 @@
 #pragma once
 
-//#define USE_VIDEO
+#define USE_VIDEO
 
 #include "ofMain.h"
 #include "ofxSlitScan.h"
+#include "ofxUI.h"
 #include "ofxCv.h"
 #include "Clone.h"
 #include "FaceOsc.h"
 #include "ofxFaceTrackerThreaded.h"
+#include "MotionAmplifier.h"
 
 class testApp : public ofBaseApp {
 public:
+    void setupGui();
 	void setup();
     void exit();
 	void update();
@@ -19,6 +22,10 @@ public:
 	void loadFace(string face);
 	
 	void keyPressed(int key);
+    
+    ofxUICanvas* gui;
+    float offset = 280;
+    bool debug = true;
     
     FaceOsc faceOsc;
 	ofxFaceTrackerThreaded camTracker;
@@ -48,4 +55,6 @@ public:
     ofVideoGrabber grabber;
     
     ofShader lighten;
+    
+    MotionAmplifier motionAmplifier;
 };
