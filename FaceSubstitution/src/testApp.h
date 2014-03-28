@@ -1,8 +1,9 @@
 #pragma once
 
-#define USE_VIDEO
+//#define USE_VIDEO
 
 #include "ofMain.h"
+#include "ofxSlitScan.h"
 #include "ofxCv.h"
 #include "Clone.h"
 #include "FaceOsc.h"
@@ -11,6 +12,7 @@
 class testApp : public ofBaseApp {
 public:
 	void setup();
+    void exit();
 	void update();
 	void draw();
 	void dragEvent(ofDragInfo dragInfo);
@@ -41,4 +43,9 @@ public:
     ofShader binaryEffects;
     ofFbo binary;
     ofShader displacement;
+    
+    ofxSlitScan slitScan;
+    ofVideoGrabber grabber;
+    
+    ofShader lighten;
 };
