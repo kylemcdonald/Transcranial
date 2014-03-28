@@ -3,13 +3,18 @@
 using namespace ofxCv;
 
 void testApp::setup() {
-#ifdef TARGET_OSX
-	//ofSetDataPathRoot("../data/");
-#endif
+    ofSetDataPathRoot("../../../../../SharedData/");
 	ofSetVerticalSync(true);
 	cloneReady = false;
-    cam.setDeviceID(0);
+    
+#ifdef USE_VIDEO
+    cam.loadMovie("videos/milos-talking.mov");
+    cam.play();
+#else
+    cam.setDeviceID(1);
 	cam.initGrabber(1280, 720);
+#endif
+    
 	clone.setup(cam.getWidth(), cam.getHeight());
 	ofFbo::Settings settings;
 	settings.width = cam.getWidth();
@@ -20,7 +25,7 @@ void testApp::setup() {
 	srcTracker.setup();
 	srcTracker.setIterations(25);
 	srcTracker.setAttempts(4);
-
+    
 	faces.allowExt("jpg");
 	faces.allowExt("png");
 	faces.listDir("faces");
@@ -29,9 +34,25 @@ void testApp::setup() {
 		loadFace(faces.getPath(currentFace));
 	}
     
-    binaryEffects.load("", "BinaryEffects.frag");
+    binaryEffects.load("", "shaders/BinaryEffects.frag");
     binary.allocate(cam.getWidth(), cam.getHeight());
-    displacement.load("Displacement");
+    displacement.load("shaders/Displacement");
+    
+    faceOsc.osc.setup("192.168.0.255", 8338);
+    
+    ofImage distortionMap;
+    distortionMap.loadImage("images/white.png");
+    slitScan.setup(cam.getWidth(), cam.getHeight(), 60, OF_IMAGE_COLOR);
+    slitScan.setDelayMap(distortionMap);
+    slitScan.setBlending(true);
+    slitScan.setTimeDelayAndWidth(60, 0);
+    
+    lighten.load("shaders/Lighten");
+}
+
+void testApp::exit() {
+    camTracker.stopThread();
+    cam.close();
 }
 
 void testApp::update() {
@@ -45,7 +66,9 @@ void testApp::update() {
     
 	cam.update();
 	if(cam.isFrameNew()) {
+        slitScan.addImage(cam);
 		camTracker.update(toCv(cam));
+        faceOsc.sendFaceOsc(camTracker);
 		
 		cloneReady = camTracker.getFound();
 		if(cloneReady) {
@@ -82,23 +105,16 @@ void testApp::draw() {
     float scale = ofGetWidth() / (float) cam.getWidth();
     ofScale(scale, scale);
 	
-	if(src.getWidth() > 0 && cloneReady) {
-        float w = clone.getTexture().getWidth();
-        float h = clone.getTexture().getHeight();
-        ofEnableBlendMode(OF_BLENDMODE_ADD);
-		clone.getTexture().setAnchorPercent(0, 0);
-        clone.getTexture().draw(0, 0);
-		clone.getTexture().setAnchorPercent(0, 1);
-        clone.getTexture().draw(0, h, w  / 2, h / 2);
-		clone.getTexture().setAnchorPercent(1, 1);
-        clone.getTexture().draw(w, h, w  / 2, h / 2);
-		clone.getTexture().setAnchorPercent(0, 0);
-        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-        camTracker.draw();
-	} else {
-		cam.draw(0, 0);
-	}
-	
+    float w = cam.getWidth();
+    float h = cam.getHeight();
+    lighten.begin();
+    lighten.setUniform2f("resolution", w, h);
+    lighten.setUniformTexture("a", cam, 0);
+    lighten.setUniformTexture("b", slitScan.getOutputImage(), 1);
+    lighten.setUniform2f("offset", mouseX, 0);
+    cam.draw(0, 0);
+    lighten.end();
+    
 	if(!camTracker.getFound()) {
 		drawHighlightString("camera face not found", 10, 10);
 	}
@@ -129,14 +145,14 @@ void testApp::keyPressed(int key){
         ofToggleFullscreen();
     }
 	switch(key){
-	case OF_KEY_UP:
-		currentFace++;
-		break;
-	case OF_KEY_DOWN:
-		currentFace--;
-		break;
+        case OF_KEY_UP:
+            currentFace++;
+            break;
+        case OF_KEY_DOWN:
+            currentFace--;
+            break;
 	}
-	currentFace = ofClamp(currentFace,0,faces.size());
+	currentFace = ofClamp(currentFace,0,faces.size()-1);
 	if(faces.size()!=0){
 		loadFace(faces.getPath(currentFace));
 	}
