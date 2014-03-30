@@ -54,10 +54,11 @@ void testApp::setup() {
     displacement.load("shaders/Displacement");
     
     faceOsc.osc.setup("192.168.0.255", 8338);
+    osc.setup(7401);
     
     ofImage distortionMap;
     distortionMap.loadImage("images/white.png");
-    slitScan.setup(cam.getWidth(), cam.getHeight(), 60, OF_IMAGE_COLOR);
+    slitScan.setup(cam.getWidth(), cam.getHeight(), 60);
     slitScan.setDelayMap(distortionMap);
     slitScan.setBlending(true);
     slitScan.setTimeDelayAndWidth(60, 0);
@@ -76,8 +77,21 @@ void testApp::exit() {
 }
 
 void testApp::update() {
+    while(osc.hasWaitingMessages()) {
+        ofxOscMessage msg;
+        osc.getNextMessage(&msg);
+        if(msg.getAddress() == "/delay") {
+            float delaySeconds = msg.getArgAsFloat(0);
+            int delayFrames = delaySeconds * camTimer.getFramerate();
+            delayFrames = MIN(delayFrames, slitScan.getCapacity());
+            slitScan.setTimeDelayAndWidth(delayFrames, 0);
+        }
+    }
+    
 	cam.update();
 	if(cam.isFrameNew()) {
+        camTimer.tick();
+        
         if(enableSlitScan) {
             slitScan.addImage(cam);
         }
