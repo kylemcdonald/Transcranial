@@ -6,9 +6,11 @@
 #include "ofxSlitScan.h"
 #include "ofxUI.h"
 #include "ofxCv.h"
-#include "Clone.h"
-#include "FaceOsc.h"
+#include "RateTimer.h"
 #include "ofxFaceTrackerThreaded.h"
+
+#include "FaceOsc.h"
+#include "Clone.h"
 #include "MotionAmplifier.h"
 
 class testApp : public ofBaseApp {
@@ -30,6 +32,7 @@ public:
     bool enableSlitScan = false;
     bool enableMotionAmplifier = false;
     
+    ofxOscReceiver osc;
     FaceOsc faceOsc;
 	ofxFaceTrackerThreaded camTracker;
     
@@ -38,6 +41,7 @@ public:
 #else
 	ofVideoGrabber cam;
 #endif
+    RateTimer camTimer;
 	
 	ofxFaceTracker srcTracker;
 	ofImage src;

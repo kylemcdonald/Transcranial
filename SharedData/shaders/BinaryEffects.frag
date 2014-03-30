@@ -48,13 +48,13 @@ float quasi(float interferenceAngle, vec2 point, float phase) {
 
 void main() {
 	float time = iGlobalTime;
-	float stage = mod(time / 2., 5.);
+	float stage = 0;//mod(time / 2., 5.);
 	
 	vec2 size = iResolution.xy;
-	float positionDivider = floor(mod(time / 4., 2.)) * 4.;
-	float camoStrength = floor(mod(time / 8., 2.)) * 10.;
-	float offsetSpeed = floor(mod(time / 16., 2.)) * 1.;
-	float scrollSpeed = floor(mod(time / 32., 2.)) * 1.;
+	float positionDivider = 0;//floor(mod(time / 4., 2.)) * 4.;
+	float camoStrength = 4;//floor(mod(time / 8., 2.)) * 10.;
+	float offsetSpeed = 2;//floor(mod(time / 16., 2.)) * 1.;
+	float scrollSpeed = 2;//floor(mod(time / 32., 2.)) * 1.;
 	
 	float b;
 	vec2 position = vec2(gl_FragCoord.x, size.y - gl_FragCoord.y);
