@@ -5,7 +5,7 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>F175445B-B2E9-4416-92C0-69C5437BA0FC</string>
+	<string>5484A27F-8DC5-4E11-B583-BC0C80A6306C</string>
 	<key>IDESourceControlProjectName</key>
 	<string>ofApp</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
@@ -14,7 +14,7 @@
 		<string>ssh://github.com/kylemcdonald/Transcranial.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>example-expression/ofApp.xcodeproj/project.xcworkspace</string>
+	<string>example-jsonplayback/ofApp.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>17ED4173-42E0-46E2-BDD6-0BAEF52D58DB</key>
