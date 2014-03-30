@@ -1,6 +1,6 @@
 #pragma once
 
-#define USE_VIDEO
+//#define USE_VIDEO
 
 #include "ofMain.h"
 #include "ofxSlitScan.h"
@@ -12,6 +12,7 @@
 #include "FaceOsc.h"
 #include "Clone.h"
 #include "MotionAmplifier.h"
+#include "FrameDifference.h"
 
 class testApp : public ofBaseApp {
 public:
@@ -31,6 +32,8 @@ public:
     bool enableFaceSubstitution = false;
     bool enableSlitScan = false;
     bool enableMotionAmplifier = false;
+    bool enableBinaryPatterns = false;
+    float motionThreshold = 125;
     
     ofxOscReceiver osc;
     FaceOsc faceOsc;
@@ -41,7 +44,10 @@ public:
 #else
 	ofVideoGrabber cam;
 #endif
+    
     RateTimer camTimer;
+    
+    FrameDifference motion;
 	
 	ofxFaceTracker srcTracker;
 	ofImage src;

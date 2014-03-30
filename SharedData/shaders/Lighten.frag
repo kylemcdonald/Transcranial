@@ -4,6 +4,7 @@ uniform sampler2DRect a, b;
 uniform vec2 offset;
 uniform vec2 resolution;
 varying vec2 texCoord;
+varying vec2 invTexCoord;
 
 // texture wrap modes aren't working
 vec4 clampedSample(sampler2DRect rect, vec2 texCoord) {
@@ -16,6 +17,6 @@ vec4 clampedSample(sampler2DRect rect, vec2 texCoord) {
 }
 
 void main() {
-    gl_FragColor = max(clampedSample(a, texCoord + offset),
+    gl_FragColor = max(clampedSample(a, invTexCoord - offset),
                        clampedSample(b, texCoord - offset));
 }

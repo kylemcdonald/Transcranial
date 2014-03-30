@@ -9,7 +9,9 @@ void testApp::setupGui() {
     gui->addToggle("Enable face sub", &enableFaceSubstitution);
     gui->addToggle("Enable slit scan", &enableSlitScan);
     gui->addToggle("Enable motion amp", &enableMotionAmplifier);
+    gui->addToggle("Enable binary patt", &enableBinaryPatterns);
     gui->addSlider("Offset", 0, 600, &offset);
+    gui->addSlider("Motion threshold", 100, 1000, &motionThreshold);
     gui->addSlider("Motion strength", -100, 100, &motionAmplifier.strength);
     gui->addSlider("Motion learning rate", 0, 1, &motionAmplifier.learningRate);
     gui->addSlider("Motion blur amount", 0, 15, &motionAmplifier.blurAmount);
@@ -23,7 +25,7 @@ void testApp::setup() {
 	cloneReady = false;
     
 #ifdef USE_VIDEO
-    cam.loadMovie("videos/milos-talking.mov");
+    cam.loadMovie("videos/milos-extreme.mov");
     cam.play();
 #else
     cam.setDeviceID(0);
@@ -58,7 +60,7 @@ void testApp::setup() {
     
     ofImage distortionMap;
     distortionMap.loadImage("images/white.png");
-    slitScan.setup(cam.getWidth(), cam.getHeight(), 60);
+    slitScan.setup(cam.getWidth(), cam.getHeight(), 100);
     slitScan.setDelayMap(distortionMap);
     slitScan.setBlending(true);
     slitScan.setTimeDelayAndWidth(60, 0);
@@ -81,9 +83,10 @@ void testApp::update() {
         ofxOscMessage msg;
         osc.getNextMessage(&msg);
         if(msg.getAddress() == "/delay") {
-            float delaySeconds = msg.getArgAsFloat(0);
+            float delaySeconds = msg.getArgAsFloat(0) / 1000.;
             int delayFrames = delaySeconds * camTimer.getFramerate();
             delayFrames = MIN(delayFrames, slitScan.getCapacity());
+            ofLog() << delaySeconds << " " << delayFrames;
             slitScan.setTimeDelayAndWidth(delayFrames, 0);
         }
     }
@@ -91,6 +94,13 @@ void testApp::update() {
 	cam.update();
 	if(cam.isFrameNew()) {
         camTimer.tick();
+        
+        motion.update(cam);
+        if(motion.getMean() > 1/motionThreshold) {
+            motionAmplifier.strength = 100;
+        } else {
+            motionAmplifier.strength = 0;
+        }
         
         if(enableSlitScan) {
             slitScan.addImage(cam);
@@ -129,8 +139,10 @@ void testApp::update() {
                 ofClear(0, 255);
                 camMesh.draw();
                 ofPushStyle();
-                ofEnableBlendMode(OF_BLENDMODE_MULTIPLY);
-                binary.draw(0, 0);
+                if(enableBinaryPatterns) {
+                    ofEnableBlendMode(OF_BLENDMODE_MULTIPLY);
+                    binary.draw(0, 0);
+                }
                 ofPopStyle();
                 maskFbo.end();
                 
@@ -156,27 +168,31 @@ void testApp::draw() {
     ofPushMatrix();
     ofScale(scale, scale);
 	
-    float w = cam.getWidth();
-    float h = cam.getHeight();
-    lighten.begin();
-    lighten.setUniform2f("resolution", w, h);
-    if(enableFaceSubstitution) {
-        lighten.setUniformTexture("a", clone.getTexture(), 1);
-    } else {
-        lighten.setUniformTexture("a", cam, 1);
-    }
-    if(enableMotionAmplifier) {
-        lighten.setUniformTexture("b", amplifiedMotion, 2);
-    } else {
-        if(enableSlitScan) {
-            lighten.setUniformTexture("b", slitScan.getOutputImage(), 2);
+    if(offset > 0) {
+        float w = cam.getWidth();
+        float h = cam.getHeight();
+        lighten.begin();
+        lighten.setUniform2f("resolution", w, h);
+        if(enableFaceSubstitution) {
+            lighten.setUniformTexture("a", clone.getTexture(), 1);
         } else {
-            lighten.setUniformTexture("b", cam, 2);
+            lighten.setUniformTexture("a", cam, 1);
         }
+        if(enableMotionAmplifier) {
+            lighten.setUniformTexture("b", amplifiedMotion, 2);
+        } else {
+            if(enableSlitScan) {
+                lighten.setUniformTexture("b", slitScan.getOutputImage(), 2);
+            } else {
+                lighten.setUniformTexture("b", cam, 2);
+            }
+        }
+        lighten.setUniform2f("offset", offset, 0);
+        cam.draw(0, 0);
+        lighten.end();
+    } else {
+        amplifiedMotion.draw(0, 0);
     }
-    lighten.setUniform2f("offset", offset, 0);
-    cam.draw(0, 0);
-    lighten.end();
     
     if(debug) {
         camTracker.draw();

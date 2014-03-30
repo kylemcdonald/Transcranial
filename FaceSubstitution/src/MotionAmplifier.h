@@ -30,9 +30,9 @@ public:
     
     MotionAmplifier()
     :strength(0)
-    ,learningRate(1)
-    ,blurAmount(0)
-    ,windowSize(8) {
+    ,learningRate(.95)
+    ,blurAmount(1)
+    ,windowSize(4) {
     }
     
     void setup(int w, int h, int stepSize, float rescale = 1) {
