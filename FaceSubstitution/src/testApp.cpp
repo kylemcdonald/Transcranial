@@ -2,6 +2,21 @@
 
 using namespace ofxCv;
 
+void testApp::setupGui() {
+    gui = new ofxUICanvas();
+    gui->addFPS();
+    gui->addToggle("Debug", &debug);
+    gui->addToggle("Enable face sub", &enableFaceSubstitution);
+    gui->addToggle("Enable slit scan", &enableSlitScan);
+    gui->addToggle("Enable motion amp", &enableMotionAmplifier);
+    gui->addSlider("Offset", 0, 600, &offset);
+    gui->addSlider("Motion strength", -100, 100, &motionAmplifier.strength);
+    gui->addSlider("Motion learning rate", 0, 1, &motionAmplifier.learningRate);
+    gui->addSlider("Motion blur amount", 0, 15, &motionAmplifier.blurAmount);
+    gui->addSlider("Motion window size", 1, 64, &motionAmplifier.windowSize);
+    gui->autoSizeToFitWidgets();
+}
+
 void testApp::setup() {
     ofSetDataPathRoot("../../../../../SharedData/");
 	ofSetVerticalSync(true);
@@ -11,7 +26,7 @@ void testApp::setup() {
     cam.loadMovie("videos/milos-talking.mov");
     cam.play();
 #else
-    cam.setDeviceID(1);
+    cam.setDeviceID(0);
 	cam.initGrabber(1280, 720);
 #endif
     
@@ -39,15 +54,21 @@ void testApp::setup() {
     displacement.load("shaders/Displacement");
     
     faceOsc.osc.setup("192.168.0.255", 8338);
+    osc.setup(7401);
     
     ofImage distortionMap;
     distortionMap.loadImage("images/white.png");
-    slitScan.setup(cam.getWidth(), cam.getHeight(), 60, OF_IMAGE_COLOR);
+    slitScan.setup(cam.getWidth(), cam.getHeight(), 60);
     slitScan.setDelayMap(distortionMap);
     slitScan.setBlending(true);
     slitScan.setTimeDelayAndWidth(60, 0);
     
     lighten.load("shaders/Lighten");
+    
+    motionAmplifier.setup(cam.getWidth(), cam.getHeight(), 1, .1);
+    amplifiedMotion.allocate(cam.getWidth(), cam.getHeight());
+    
+    setupGui();
 }
 
 void testApp::exit() {
@@ -56,45 +77,74 @@ void testApp::exit() {
 }
 
 void testApp::update() {
-    binary.begin();
-    binaryEffects.begin();
-    binaryEffects.setUniform3f("iResolution", cam.getWidth(), cam.getHeight(), 0);
-    binaryEffects.setUniform1f("iGlobalTime", ofGetElapsedTimef());
-    cam.draw(0, 0);
-    binaryEffects.end();
-    binary.end();
+    while(osc.hasWaitingMessages()) {
+        ofxOscMessage msg;
+        osc.getNextMessage(&msg);
+        if(msg.getAddress() == "/delay") {
+            float delaySeconds = msg.getArgAsFloat(0);
+            int delayFrames = delaySeconds * camTimer.getFramerate();
+            delayFrames = MIN(delayFrames, slitScan.getCapacity());
+            slitScan.setTimeDelayAndWidth(delayFrames, 0);
+        }
+    }
     
 	cam.update();
 	if(cam.isFrameNew()) {
-        slitScan.addImage(cam);
-		camTracker.update(toCv(cam));
-        faceOsc.sendFaceOsc(camTracker);
-		
-		cloneReady = camTracker.getFound();
-		if(cloneReady) {
-			ofMesh camMesh = camTracker.getImageMesh();
-			camMesh.clearTexCoords();
-			camMesh.addTexCoords(srcPoints);
-			
-			maskFbo.begin();
-			ofClear(0, 255);
-			camMesh.draw();
-            ofPushStyle();
-            ofEnableBlendMode(OF_BLENDMODE_MULTIPLY);
-            binary.draw(0, 0);
-            ofPopStyle();
-			maskFbo.end();
-			
-			srcFbo.begin();
-			ofClear(0, 255);
-			src.bind();
-			camMesh.draw();
-			src.unbind();
-			srcFbo.end();
-			
-			clone.setStrength(16);
-			clone.update(srcFbo.getTextureReference(), cam.getTextureReference(), maskFbo.getTextureReference());
-		}
+        camTimer.tick();
+        
+        if(enableSlitScan) {
+            slitScan.addImage(cam);
+        }
+        
+        if(enableMotionAmplifier) {
+            amplifiedMotion.begin();
+            if(enableSlitScan) {
+                motionAmplifier.update(slitScan.getOutputImage());
+                motionAmplifier.draw(slitScan.getOutputImage());
+            } else {
+                motionAmplifier.update(cam);
+                motionAmplifier.draw(cam);
+            }
+            amplifiedMotion.end();
+        }
+        
+        if(enableFaceSubstitution) {
+            camTracker.update(toCv(cam));
+            faceOsc.sendFaceOsc(camTracker);
+            cloneReady = camTracker.getFound();
+            if(cloneReady) {
+                binary.begin();
+                binaryEffects.begin();
+                binaryEffects.setUniform3f("iResolution", cam.getWidth(), cam.getHeight(), 0);
+                binaryEffects.setUniform1f("iGlobalTime", ofGetElapsedTimef());
+                cam.draw(0, 0);
+                binaryEffects.end();
+                binary.end();
+                
+                ofMesh camMesh = camTracker.getImageMesh();
+                camMesh.clearTexCoords();
+                camMesh.addTexCoords(srcPoints);
+                
+                maskFbo.begin();
+                ofClear(0, 255);
+                camMesh.draw();
+                ofPushStyle();
+                ofEnableBlendMode(OF_BLENDMODE_MULTIPLY);
+                binary.draw(0, 0);
+                ofPopStyle();
+                maskFbo.end();
+                
+                srcFbo.begin();
+                ofClear(0, 255);
+                src.bind();
+                camMesh.draw();
+                src.unbind();
+                srcFbo.end();
+                
+                clone.setStrength(16);
+                clone.update(srcFbo.getTextureReference(), cam.getTextureReference(), maskFbo.getTextureReference());
+            }
+        }
 	}
 }
 
@@ -103,29 +153,43 @@ void testApp::draw() {
 	ofSetColor(255);
     
     float scale = ofGetWidth() / (float) cam.getWidth();
+    ofPushMatrix();
     ofScale(scale, scale);
 	
     float w = cam.getWidth();
     float h = cam.getHeight();
     lighten.begin();
     lighten.setUniform2f("resolution", w, h);
-    lighten.setUniformTexture("a", cam, 0);
-    lighten.setUniformTexture("b", slitScan.getOutputImage(), 1);
-    lighten.setUniform2f("offset", mouseX, 0);
+    if(enableFaceSubstitution) {
+        lighten.setUniformTexture("a", clone.getTexture(), 1);
+    } else {
+        lighten.setUniformTexture("a", cam, 1);
+    }
+    if(enableMotionAmplifier) {
+        lighten.setUniformTexture("b", amplifiedMotion, 2);
+    } else {
+        if(enableSlitScan) {
+            lighten.setUniformTexture("b", slitScan.getOutputImage(), 2);
+        } else {
+            lighten.setUniformTexture("b", cam, 2);
+        }
+    }
+    lighten.setUniform2f("offset", offset, 0);
     cam.draw(0, 0);
     lighten.end();
     
-	if(!camTracker.getFound()) {
-		drawHighlightString("camera face not found", 10, 10);
-	}
-	if(src.getWidth() == 0) {
-		drawHighlightString("drag an image here", 10, 30);
-	} else if(!srcTracker.getFound()) {
-		drawHighlightString("image face not found", 10, 30);
-	}
+    if(debug) {
+        camTracker.draw();
+        ofScale(.2, .2);
+        maskFbo.draw(0, 0);
+        ofTranslate(0, cam.getHeight());
+        srcFbo.draw(0, 0);
+        ofTranslate(0, cam.getHeight());
+        ofScale(1./motionAmplifier.getRescale(), 1./motionAmplifier.getRescale());
+        motionAmplifier.getFlowTexture().draw(0, 0);
+    }
     
-    ofScale(.5, .5);
-//    maskFbo.draw(0, 0);
+    ofPopMatrix();
 }
 
 void testApp::loadFace(string face){
@@ -143,6 +207,9 @@ void testApp::dragEvent(ofDragInfo dragInfo) {
 void testApp::keyPressed(int key){
     if(key == 'f') {
         ofToggleFullscreen();
+    }
+    if(key == '\t') {
+        gui->toggleVisible();
     }
 	switch(key){
         case OF_KEY_UP:

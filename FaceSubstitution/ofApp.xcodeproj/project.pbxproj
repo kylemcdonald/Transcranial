@@ -167,6 +167,11 @@
 		185BB9B07B8DB74BD2D3211F /* ofxFaceTracker.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = ofxFaceTracker.cpp; path = ../../../addons/ofxFaceTracker/src/ofxFaceTracker.cpp; sourceTree = SOURCE_ROOT; };
 		19660B42DF06415007708495 /* IO.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = IO.h; path = ../../../addons/ofxFaceTracker/libs/FaceTracker/include/FaceTracker/IO.h; sourceTree = SOURCE_ROOT; };
 		1E95EFD35ED9C5D97F2F015E /* timer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = timer.h; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/timer.h; sourceTree = SOURCE_ROOT; };
+		273CCB5918E7B72000797599 /* DelayTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DelayTimer.h; sourceTree = "<group>"; };
+		273CCB5A18E7B72000797599 /* FadeTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FadeTimer.h; sourceTree = "<group>"; };
+		273CCB5B18E7B72000797599 /* Hysteresis.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Hysteresis.h; sourceTree = "<group>"; };
+		273CCB5C18E7B72000797599 /* ofxTiming.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ofxTiming.h; sourceTree = "<group>"; };
+		273CCB5D18E7B72000797599 /* RateTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RateTimer.h; sourceTree = "<group>"; };
 		2747CDE418E2E5CF000D72DC /* ofxOsc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ofxOsc.h; sourceTree = "<group>"; };
 		2747CDE518E2E5CF000D72DC /* ofxOscArg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ofxOscArg.h; sourceTree = "<group>"; };
 		2747CDE618E2E5CF000D72DC /* ofxOscBundle.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ofxOscBundle.cpp; sourceTree = "<group>"; };
@@ -313,6 +318,7 @@
 		27D1148118E2FD8500C6C92D /* tinyxmlparser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = tinyxmlparser.cpp; sourceTree = "<group>"; };
 		27F9467B18DC58AC00EE4EF5 /* Clone.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Clone.cpp; sourceTree = "<group>"; };
 		27F9467C18DC58AC00EE4EF5 /* Clone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Clone.h; sourceTree = "<group>"; };
+		27FAD68A18E5F060008CBB54 /* MotionAmplifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MotionAmplifier.h; sourceTree = "<group>"; };
 		2E411F99E3AB7154484B4F96 /* kmeans_index.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = kmeans_index.h; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/kmeans_index.h; sourceTree = SOURCE_ROOT; };
 		30884ECD9C171AB1B1BDFC3F /* cv.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = cv.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv/cv.hpp; sourceTree = SOURCE_ROOT; };
 		319268D200F1BA567E4CCFF9 /* cxeigen.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = cxeigen.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv/cxeigen.hpp; sourceTree = SOURCE_ROOT; };
@@ -596,6 +602,27 @@
 				1E95EFD35ED9C5D97F2F015E /* timer.h */,
 			);
 			name = flann;
+			sourceTree = "<group>";
+		};
+		273CCB5718E7B72000797599 /* ofxTiming */ = {
+			isa = PBXGroup;
+			children = (
+				273CCB5818E7B72000797599 /* src */,
+			);
+			name = ofxTiming;
+			sourceTree = "<group>";
+		};
+		273CCB5818E7B72000797599 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				273CCB5918E7B72000797599 /* DelayTimer.h */,
+				273CCB5A18E7B72000797599 /* FadeTimer.h */,
+				273CCB5B18E7B72000797599 /* Hysteresis.h */,
+				273CCB5C18E7B72000797599 /* ofxTiming.h */,
+				273CCB5D18E7B72000797599 /* RateTimer.h */,
+			);
+			name = src;
+			path = ../../../addons/ofxTiming/src;
 			sourceTree = "<group>";
 		};
 		2747CDE218E2E5CF000D72DC /* ofxOsc */ = {
@@ -1099,6 +1126,7 @@
 		BB4B014C10F69532006C3DED /* addons */ = {
 			isa = PBXGroup;
 			children = (
+				273CCB5718E7B72000797599 /* ofxTiming */,
 				27D1147918E2FD8500C6C92D /* ofxXmlSettings */,
 				276AF99B18E2FB8A0021FE2A /* ofxUI */,
 				276AF99618E2F91B0021FE2A /* ofxSlitScan */,
@@ -1241,13 +1269,14 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
+				276A3F5318BA741500808231 /* testApp.cpp */,
+				276A3F5418BA741500808231 /* testApp.h */,
 				2747CE1D18E2E9B3000D72DC /* FaceOsc.cpp */,
 				2747CE1E18E2E9B3000D72DC /* FaceOsc.h */,
 				27F9467B18DC58AC00EE4EF5 /* Clone.cpp */,
 				27F9467C18DC58AC00EE4EF5 /* Clone.h */,
-				276A3F5318BA741500808231 /* testApp.cpp */,
-				276A3F5418BA741500808231 /* testApp.h */,
-				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
+				27FAD68A18E5F060008CBB54 /* MotionAmplifier.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
