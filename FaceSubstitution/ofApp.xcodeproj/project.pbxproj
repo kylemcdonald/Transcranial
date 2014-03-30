@@ -172,6 +172,7 @@
 		273CCB5B18E7B72000797599 /* Hysteresis.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Hysteresis.h; sourceTree = "<group>"; };
 		273CCB5C18E7B72000797599 /* ofxTiming.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ofxTiming.h; sourceTree = "<group>"; };
 		273CCB5D18E7B72000797599 /* RateTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RateTimer.h; sourceTree = "<group>"; };
+		273CCB5F18E7BB2D00797599 /* FrameDifference.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FrameDifference.h; sourceTree = "<group>"; };
 		2747CDE418E2E5CF000D72DC /* ofxOsc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ofxOsc.h; sourceTree = "<group>"; };
 		2747CDE518E2E5CF000D72DC /* ofxOscArg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ofxOscArg.h; sourceTree = "<group>"; };
 		2747CDE618E2E5CF000D72DC /* ofxOscBundle.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ofxOscBundle.cpp; sourceTree = "<group>"; };
@@ -623,6 +624,15 @@
 			);
 			name = src;
 			path = ../../../addons/ofxTiming/src;
+			sourceTree = "<group>";
+		};
+		273CCB5E18E7BB2D00797599 /* SharedCode */ = {
+			isa = PBXGroup;
+			children = (
+				273CCB5F18E7BB2D00797599 /* FrameDifference.h */,
+			);
+			name = SharedCode;
+			path = ../SharedCode;
 			sourceTree = "<group>";
 		};
 		2747CDE218E2E5CF000D72DC /* ofxOsc */ = {
@@ -1257,6 +1267,7 @@
 			children = (
 				E4B6FCAD0C3E899E008CF71C /* openFrameworks-Info.plist */,
 				E4EB6923138AFD0F00A09F29 /* Project.xcconfig */,
+				273CCB5E18E7BB2D00797599 /* SharedCode */,
 				27766B5418E57D5500FCBF65 /* shaders */,
 				E4B69E1C0A3A1BDC003C02F2 /* src */,
 				E4EEC9E9138DF44700A80321 /* openFrameworks */,
