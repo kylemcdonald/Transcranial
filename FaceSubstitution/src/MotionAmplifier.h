@@ -17,9 +17,6 @@ private:
     cv::Mat accumulator;
     bool needToReset;
     
-    float strength, learningRate;
-    int blurAmount, windowSize;
-    
     void duplicateFirstChannel(cv::Mat& twoChannel, cv::Mat& threeChannel) {
         vector<cv::Mat> each;
         cv::split(twoChannel, each);
@@ -28,9 +25,19 @@ private:
     }
     
 public:
+    
+    float strength, learningRate, blurAmount, windowSize;
+    
+    MotionAmplifier()
+    :strength(0)
+    ,learningRate(1)
+    ,blurAmount(0)
+    ,windowSize(8) {
+    }
+    
     void setup(int w, int h, int stepSize, float rescale = 1) {
         this->rescale = rescale;
-        shader.load("MotionAmplifier");
+        shader.load("shaders/MotionAmplifier");
         scaleFactor = 1. / 10; // could dynamically calculate this from flow3
         needToReset = false;
         
@@ -62,6 +69,7 @@ public:
     template <class T>
     void update(T& img) {
         ofxCv::resize(img, rescaled, rescale, rescale);
+        flow.setWindowSize(windowSize);
 		flow.calcOpticalFlow(rescaled);
         duplicateFirstChannel(flow.getFlow(), flow3);
         flow3 *= scaleFactor;
@@ -110,19 +118,7 @@ public:
         return flowTexture;
     }
     
-    void setStrength(float strength) {
-        this->strength = strength;
-    }
-    
-    void setLearningRate(float learningRate) {
-        this->learningRate = learningRate;
-    }
-    
-    void setBlurAmount(int blurAmount) {
-        this->blurAmount = blurAmount;
-    }
-    
-    void setWindowSize(int windowSize) {
-		flow.setWindowSize(windowSize);
+    float getRescale() {
+        return rescale;
     }
 };
