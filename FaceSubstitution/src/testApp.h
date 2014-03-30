@@ -26,6 +26,9 @@ public:
     ofxUICanvas* gui;
     float offset = 280;
     bool debug = true;
+    bool enableFaceSubstitution = false;
+    bool enableSlitScan = false;
+    bool enableMotionAmplifier = false;
     
     FaceOsc faceOsc;
 	ofxFaceTrackerThreaded camTracker;
@@ -57,4 +60,5 @@ public:
     ofShader lighten;
     
     MotionAmplifier motionAmplifier;
+    ofFbo amplifiedMotion;
 };

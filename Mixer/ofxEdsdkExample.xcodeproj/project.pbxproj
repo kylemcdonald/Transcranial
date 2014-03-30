@@ -142,6 +142,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		273CCB5418E7928A00797599 /* FrameDifference.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameDifference.h; sourceTree = "<group>"; };
+		273CCB5518E7930900797599 /* ofxEdsdkCam.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ofxEdsdkCam.h; sourceTree = "<group>"; };
 		275FFD9618DDCAE800444B99 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = ../../../../../../../System/Library/Frameworks/Accelerate.framework; sourceTree = "<group>"; };
 		275FFD9718DDCAE800444B99 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../../../../../../../System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
 		275FFD9818DDCAE800444B99 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = ../../../../../../../System/Library/Frameworks/Cocoa.framework; sourceTree = "<group>"; };
@@ -881,6 +883,8 @@
 			isa = PBXGroup;
 			children = (
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
+				273CCB5418E7928A00797599 /* FrameDifference.h */,
+				273CCB5518E7930900797599 /* ofxEdsdkCam.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
