@@ -34,6 +34,7 @@ public:
     float rescale = .25;
     float minAreaRadius = 16;
     float stability = 1.;//.6; //1.
+    float spreadAmplitude = .5;
     float repetitionSteps = 1;//10;
     float thresholdValue = 60;
     float dilationAmount = 2;
@@ -45,13 +46,13 @@ public:
     float scaleNoise = .1;//.5;
     float motionMin = .02 / 5; // .01
     float motionMax = .02 / 3; //.005;
-    float verticalOffset = 0;
+    float verticalOffset = 40;
     float bodyCenterSmoothing = .5;
     
     float motionValue = 0;
     float smoothedMotionValue = 0;
     float motionSmoothingUp = .99;
-    float motionSmoothingDown = 0;
+    float motionSmoothingDown = .33;
     ofxUISlider* motionSlider;
     ofxUISlider* smoothedMotionSlider;
     
@@ -70,6 +71,7 @@ public:
         gui->addSlider("Vertical offset", -200, 200, &verticalOffset);
         gui->addSlider("Min area radius", 0, 50, &minAreaRadius);
         gui->addSlider("Stability", 0, 1, &stability);
+        gui->addSlider("Spread amplitude", 0, 2, &spreadAmplitude);
         gui->addSlider("Repetition steps", 0, 40, &repetitionSteps);
         gui->addSlider("Rotation amplitude", 0, 360, &rotationAmplitude);
         gui->addSlider("Rotation rate", 0, 10, &rotationRate);
@@ -144,12 +146,13 @@ public:
         contours.setSortBySize(true);
         contours.findContours(dilated);
         int n = contours.size();
-        ofVec2f curBodyCenter;
-        for(int i = 0; i < n; i++) {
-            curBodyCenter += toOf(contours.getCenter(i));
+        if(n > 0) {
+            cv::Rect all = contours.getBoundingRect(0);
+            for(int i = 1; i < n; i++) {
+                all |= contours.getBoundingRect(i);
+            }
+            bodyCenter.interpolate(toOf(all).getCenter(), bodyCenterSmoothing);
         }
-        curBodyCenter /= n;
-        bodyCenter.interpolate(curBodyCenter, bodyCenterSmoothing);
     }
     
     void draw() {
@@ -197,14 +200,23 @@ public:
             
             ofEnableBlendMode(OF_BLENDMODE_ALPHA);
             ofPushMatrix();
-            ofTranslate(sx + w / 2, sy + h / 2);
-            float baseRotation = rotationRate * ofGetElapsedTimef() + (contours.getLabel(i) % 3);
+            
+            ofVec2f center = toOf(contours.getCenter(i));
+            ofVec2f offset = center - bodyCenter;
+            float orientation = atan2f(offset.y, offset.x);
+            float spread = totalStability * spreadAmplitude;
+            ofVec2f position = bodyCenter + offset * (1 + spread);
+            
+            float id = orientation; //contours.getLabel(i) % 3;
+            
+            float baseRotation = rotationRate * ofGetElapsedTimef() + id;
             float rotation = ofLerp(sin(baseRotation), ofSignedNoise(baseRotation), rotationNoise);
             rotation *= rotationAmplitude * totalStability;
             
-            float baseScale = scaleRate * ofGetElapsedTimef() + contours.getLabel(i);
+            float baseScale = scaleRate * ofGetElapsedTimef() + id;
             float scale = 1 + scaleAmplitude * ofLerp(sin(baseScale), ofSignedNoise(baseScale), scaleNoise) * totalStability;
             
+            ofTranslate(position);
             for(int j = 0; j < repetitionSteps; j++) {
                 ofPushMatrix();
                 ofRotate(ofMap(j, -1, repetitionSteps, 0, rotation));
