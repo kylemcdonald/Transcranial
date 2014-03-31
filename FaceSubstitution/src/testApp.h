@@ -49,11 +49,10 @@ public:
     
     // face tracking, face substitution
     FaceOsc faceOsc;
-	ofxFaceTrackerThreaded camTracker;
+	ofxFaceTracker camTracker;
 	ofxFaceTracker srcTracker;
 	ofImage src;
 	vector<ofVec2f> srcPoints;
-	bool cloneReady;
 	Clone clone;
 	ofFbo srcFbo, maskFbo;
 	ofDirectory faces;
