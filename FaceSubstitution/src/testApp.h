@@ -19,8 +19,8 @@
 class FaceSubstitution {
 public:
 	ofxFaceTracker tracker;
-	Clone clone;
 	ofFbo srcFbo, maskFbo;
+	Clone clone;
     
     void setup(int width, int height) {
         clone.setup(width, height);
@@ -69,7 +69,7 @@ public:
 	void update();
 	void draw();
 	void dragEvent(ofDragInfo dragInfo);
-	void loadFace(string face);
+	void loadFace(string face, ofImage& src, vector<ofVec2f>& srcPoints);
 	
 	void keyPressed(int key);
     
@@ -96,13 +96,14 @@ public:
     
     // face tracking, face substitution
     FaceOsc faceOsc;
-	ofxFaceTracker camTracker;
+	ofxFaceTrackerThreaded camTracker;
     FaceSubstitution faceSubstitution;
     
 	ofDirectory faces;
 	int currentFace;
-	ofImage src;
-	vector<ofVec2f> srcPoints;
+	ofImage srcOriginal, srcDelay;
+	vector<ofVec2f> srcOriginalPoints;
+	vector<ofVec2f> srcDelayPoints;
     
     // delay
     ofxSlitScan slitScan;

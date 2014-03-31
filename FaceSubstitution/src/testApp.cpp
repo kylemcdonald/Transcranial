@@ -34,7 +34,7 @@ void testApp::setup() {
     camTimer.setSmoothing(.5);
     
 	camTracker.setup();
-    camTracker.setRescale(trackerRescale);
+//    camTracker.setRescale(trackerRescale);
     camTracker.setHaarMinSize(cam.getHeight() / 4);
     
     faceSubstitution.setup(cam.getWidth(), cam.getHeight());
@@ -42,8 +42,9 @@ void testApp::setup() {
 	faces.allowExt("jpg");
 	faces.listDir("faces");
 	currentFace = 0;
-	if(faces.size()!=0){
-		loadFace(faces.getPath(currentFace));
+	if(faces.size() > 1){
+		loadFace(faces.getPath(0), srcOriginal, srcOriginalPoints);
+		loadFace(faces.getPath(1), srcDelay, srcDelayPoints);
 	}
     
     faceOsc.osc.setup("192.168.0.255", 8338);
@@ -84,7 +85,7 @@ void testApp::update() {
     float normalizedMotion = ofGetKeyPressed(' ') ? 1 : 0;
     motionAmplifier.strength = normalizedMotion * motionMax;
     
-    camTracker.setRescale(trackerRescale);
+//    camTracker.setRescale(trackerRescale);
     faceSubstitution.clone.setStrength(substitutionStrength);
     
 	cam.update();
@@ -102,7 +103,7 @@ void testApp::update() {
         
         // step 2: face sub with two different images
         if(camTracker.getFound()) {
-            faceSubstitution.update(camTracker, cam, srcPoints, src);
+            faceSubstitution.update(camTracker, cam, srcOriginalPoints, srcOriginal);
         }
         
         amplifiedMotion.begin();
@@ -149,7 +150,7 @@ void testApp::draw() {
     ofPopMatrix();
 }
 
-void testApp::loadFace(string face){
+void testApp::loadFace(string face, ofImage& src, vector<ofVec2f>& srcPoints){
 	src.loadImage(face);
 	if(src.getWidth() > 0) {
         srcPoints = faceSubstitution.getSrcPoints(src);
@@ -157,7 +158,7 @@ void testApp::loadFace(string face){
 }
 
 void testApp::dragEvent(ofDragInfo dragInfo) {
-	loadFace(dragInfo.files[0]);
+	loadFace(dragInfo.files[0], srcOriginal, srcOriginalPoints);
 }
 
 void testApp::keyPressed(int key){
@@ -166,19 +167,5 @@ void testApp::keyPressed(int key){
     }
     if(key == '\t') {
         gui->toggleVisible();
-    }
-	switch(key){
-        case OF_KEY_UP:
-            currentFace++;
-            break;
-        case OF_KEY_DOWN:
-            currentFace--;
-            break;
-	}
-    if(key == OF_KEY_UP || key == OF_KEY_DOWN) {
-        currentFace = ofClamp(currentFace,0,faces.size()-1);
-        if(faces.size()!=0){
-            loadFace(faces.getPath(currentFace));
-        }
     }
 }
