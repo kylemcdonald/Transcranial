@@ -193,6 +193,7 @@
 		273CCC2518E8615E00797599 /* Tracker.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Tracker.cc; sourceTree = "<group>"; };
 		273CCC3318E861A900797599 /* ofxSlitScan.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ofxSlitScan.cpp; sourceTree = "<group>"; };
 		273CCC3418E861A900797599 /* ofxSlitScan.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ofxSlitScan.h; sourceTree = "<group>"; };
+		27507A5218E9240C00A4B271 /* FaceSubstitution.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FaceSubstitution.h; sourceTree = "<group>"; };
 		275FFD9618DDCAE800444B99 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = ../../../../../../../System/Library/Frameworks/Accelerate.framework; sourceTree = "<group>"; };
 		275FFD9718DDCAE800444B99 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = ../../../../../../../System/Library/Frameworks/AppKit.framework; sourceTree = "<group>"; };
 		275FFD9818DDCAE800444B99 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = ../../../../../../../System/Library/Frameworks/Cocoa.framework; sourceTree = "<group>"; };
@@ -429,6 +430,7 @@
 				273CCBEF18E85F9500797599 /* FrameDifference.h */,
 				273CCBF018E85F9500797599 /* MotionAmplifier.h */,
 				273CCBF118E85F9500797599 /* ofxEdsdkCam.h */,
+				27507A5218E9240C00A4B271 /* FaceSubstitution.h */,
 			);
 			name = SharedCode;
 			path = ../SharedCode;

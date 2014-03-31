@@ -89,6 +89,10 @@ public:
     }
     
     void draw(ofBaseHasTexture& tex) {
+        draw(tex.getTextureReference());
+    }
+    
+    void draw(ofTexture& tex) {
         if(flowTexture.isAllocated()) {
             shader.begin();
             shader.setUniformTexture("source", tex, 1);

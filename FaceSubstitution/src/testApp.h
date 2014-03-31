@@ -13,53 +13,8 @@
 
 #include "FaceOsc.h"
 #include "ofxOscSender.h"
-#include "Clone.h"
 #include "MotionAmplifier.h"
-
-class FaceSubstitution {
-public:
-	ofxFaceTracker tracker;
-	ofFbo srcFbo, maskFbo;
-	Clone clone;
-    
-    void setup(int width, int height) {
-        clone.setup(width, height);
-        
-        ofFbo::Settings settings;
-        settings.width = width;
-        settings.height = height;
-        maskFbo.allocate(settings);
-        srcFbo.allocate(settings);
-        
-        tracker.setup();
-        tracker.setIterations(30);
-        tracker.setAttempts(4);
-    }
-    template <class T>
-    vector<ofVec2f> getSrcPoints(T& img) {
-        tracker.update(ofxCv::toCv(img));
-        return tracker.getImagePoints();
-    }
-    void update(ofxFaceTracker& camTracker, ofBaseHasTexture& cam, vector<ofVec2f>& srcPoints, ofImage& src) {
-        ofMesh camMesh = camTracker.getImageMesh();
-        camMesh.clearTexCoords();
-        camMesh.addTexCoords(srcPoints);
-        
-        maskFbo.begin();
-        ofClear(0, 255);
-        camMesh.draw();
-        maskFbo.end();
-        
-        srcFbo.begin();
-        ofClear(0, 255);
-        src.bind();
-        camMesh.draw();
-        src.unbind();
-        srcFbo.end();
-        
-        clone.update(srcFbo.getTextureReference(), cam.getTextureReference(), maskFbo.getTextureReference());
-    }
-};
+#include "FaceSubstitution.h"
 
 class testApp : public ofBaseApp {
 public:
@@ -69,16 +24,20 @@ public:
 	void update();
 	void draw();
 	void dragEvent(ofDragInfo dragInfo);
+    void loadNextPair();
 	void loadFace(string face, ofImage& src, vector<ofVec2f>& srcPoints);
 	
+    void mousePressed(int x, int y, int button);
+    void mouseDragged(int x, int y, int button);
 	void keyPressed(int key);
+    void keyReleased(int key);
     
     ofxUICanvas* gui;
-    float offset = 85;
-    float motionMax = 50;
-    float trackerRescale = .5;
-    float substitutionStrength = 16;
-    bool debug = true;
+    float offset;
+    float motionMax;
+    float trackerRescale;
+    float substitutionStrength;
+    bool debug;
     
     ofxOscReceiver oscInput;
     
@@ -114,5 +73,6 @@ public:
     
     // motion amplification
     MotionAmplifier motionAmplifier;
-    ofFbo amplifiedMotion;
+    ofFbo amplifiedMotionOriginal;
+    ofFbo amplifiedMotionDelay;
 };
