@@ -98,6 +98,7 @@ public:
     FaceOsc faceOsc;
 	ofxFaceTrackerThreaded camTracker;
     FaceSubstitution faceSubstitution;
+    ofPixels substitutionDelay;
     
 	ofDirectory faces;
 	int currentFace;

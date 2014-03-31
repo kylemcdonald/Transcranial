@@ -101,16 +101,21 @@ void testApp::update() {
         // optical flow
         motionAmplifier.update(slitScan.getOutputImage());
         
-        // step 2: face sub with two different images
+        // step 2: face sub with two different images if possible
         if(camTracker.getFound()) {
+            faceSubstitution.update(camTracker, cam, srcDelayPoints, srcDelay);
+            faceSubstitution.clone.getTexture().readToPixels(substitutionDelay);
+            substitutionDelay.setImageType(OF_IMAGE_COLOR);
+            slitScan.addImage(substitutionDelay);
+            
             faceSubstitution.update(camTracker, cam, srcOriginalPoints, srcOriginal);
+        } else {
+            slitScan.addImage(cam);
         }
         
         amplifiedMotion.begin();
         motionAmplifier.draw(slitScan.getOutputImage());
         amplifiedMotion.end();
-        
-        slitScan.addImage(cam);
 	}
 }
 
