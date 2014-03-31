@@ -16,6 +16,51 @@
 #include "Clone.h"
 #include "MotionAmplifier.h"
 
+class FaceSubstitution {
+public:
+	ofxFaceTracker tracker;
+	Clone clone;
+	ofFbo srcFbo, maskFbo;
+    
+    void setup(int width, int height) {
+        clone.setup(width, height);
+        
+        ofFbo::Settings settings;
+        settings.width = width;
+        settings.height = height;
+        maskFbo.allocate(settings);
+        srcFbo.allocate(settings);
+        
+        tracker.setup();
+        tracker.setIterations(30);
+        tracker.setAttempts(4);
+    }
+    template <class T>
+    vector<ofVec2f> getSrcPoints(T& img) {
+        tracker.update(ofxCv::toCv(img));
+        return tracker.getImagePoints();
+    }
+    void update(ofxFaceTracker& camTracker, ofBaseHasTexture& cam, vector<ofVec2f>& srcPoints, ofImage& src) {
+        ofMesh camMesh = camTracker.getImageMesh();
+        camMesh.clearTexCoords();
+        camMesh.addTexCoords(srcPoints);
+        
+        maskFbo.begin();
+        ofClear(0, 255);
+        camMesh.draw();
+        maskFbo.end();
+        
+        srcFbo.begin();
+        ofClear(0, 255);
+        src.bind();
+        camMesh.draw();
+        src.unbind();
+        srcFbo.end();
+        
+        clone.update(srcFbo.getTextureReference(), cam.getTextureReference(), maskFbo.getTextureReference());
+    }
+};
+
 class testApp : public ofBaseApp {
 public:
     void setupGui();
@@ -31,6 +76,8 @@ public:
     ofxUICanvas* gui;
     float offset = 85;
     float motionMax = 50;
+    float trackerRescale = .5;
+    float substitutionStrength = 16;
     bool debug = true;
     
     ofxOscReceiver oscInput;
@@ -50,13 +97,12 @@ public:
     // face tracking, face substitution
     FaceOsc faceOsc;
 	ofxFaceTracker camTracker;
-	ofxFaceTracker srcTracker;
-	ofImage src;
-	vector<ofVec2f> srcPoints;
-	Clone clone;
-	ofFbo srcFbo, maskFbo;
+    FaceSubstitution faceSubstitution;
+    
 	ofDirectory faces;
 	int currentFace;
+	ofImage src;
+	vector<ofVec2f> srcPoints;
     
     // delay
     ofxSlitScan slitScan;

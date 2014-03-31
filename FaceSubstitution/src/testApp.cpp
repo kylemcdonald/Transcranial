@@ -6,6 +6,8 @@ void testApp::setupGui() {
     gui = new ofxUICanvas();
     gui->addFPS();
     gui->addToggle("Debug", &debug);
+    gui->addSlider("Tracker rescale", .1, 1, &trackerRescale);
+    gui->addSlider("Substitution strength", 1, 64, &substitutionStrength);
     gui->addSlider("Offset", 0, 600, &offset);
     gui->addSlider("Motion max", 0, 100, &motionMax);
     gui->addSlider("Motion strength", -100, 100, &motionAmplifier.strength);
@@ -31,19 +33,11 @@ void testApp::setup() {
 #endif
     camTimer.setSmoothing(.5);
     
-	clone.setup(cam.getWidth(), cam.getHeight());
-	ofFbo::Settings settings;
-	settings.width = cam.getWidth();
-	settings.height = cam.getHeight();
-	maskFbo.allocate(settings);
-	srcFbo.allocate(settings);
 	camTracker.setup();
-    camTracker.setRescale(.25);
+    camTracker.setRescale(trackerRescale);
     camTracker.setHaarMinSize(cam.getHeight() / 4);
     
-	srcTracker.setup();
-	srcTracker.setIterations(25);
-	srcTracker.setAttempts(4);
+    faceSubstitution.setup(cam.getWidth(), cam.getHeight());
     
 	faces.allowExt("jpg");
 	faces.listDir("faces");
@@ -90,6 +84,9 @@ void testApp::update() {
     float normalizedMotion = ofGetKeyPressed(' ') ? 1 : 0;
     motionAmplifier.strength = normalizedMotion * motionMax;
     
+    camTracker.setRescale(trackerRescale);
+    faceSubstitution.clone.setStrength(substitutionStrength);
+    
 	cam.update();
 	if(cam.isFrameNew()) {
         camTimer.tick();
@@ -105,24 +102,7 @@ void testApp::update() {
         
         // step 2: face sub with two different images
         if(camTracker.getFound()) {
-            ofMesh camMesh = camTracker.getImageMesh();
-            camMesh.clearTexCoords();
-            camMesh.addTexCoords(srcPoints);
-            
-            maskFbo.begin();
-            ofClear(0, 255);
-            camMesh.draw();
-            maskFbo.end();
-            
-            srcFbo.begin();
-            ofClear(0, 255);
-            src.bind();
-            camMesh.draw();
-            src.unbind();
-            srcFbo.end();
-            
-            clone.setStrength(16);
-            clone.update(srcFbo.getTextureReference(), cam.getTextureReference(), maskFbo.getTextureReference());
+            faceSubstitution.update(camTracker, cam, srcPoints, src);
         }
         
         amplifiedMotion.begin();
@@ -146,7 +126,7 @@ void testApp::draw() {
         float h = cam.getHeight();
         lighten.begin();
         lighten.setUniform2f("resolution", w, h);
-        lighten.setUniformTexture("a", clone.getTexture(), 1);
+        lighten.setUniformTexture("a", faceSubstitution.clone.getTexture(), 1);
         lighten.setUniformTexture("b", amplifiedMotion, 2);
         lighten.setUniform2f("offset", offset, 0);
         cam.draw(0, 0);
@@ -158,9 +138,9 @@ void testApp::draw() {
     if(debug) {
         camTracker.draw();
         ofScale(.2, .2);
-        maskFbo.draw(0, 0);
+        faceSubstitution.maskFbo.draw(0, 0);
         ofTranslate(0, cam.getHeight());
-        srcFbo.draw(0, 0);
+        faceSubstitution.srcFbo.draw(0, 0);
         ofTranslate(0, cam.getHeight());
         ofScale(1./motionAmplifier.getRescale(), 1./motionAmplifier.getRescale());
         motionAmplifier.getFlowTexture().draw(0, 0);
@@ -172,8 +152,7 @@ void testApp::draw() {
 void testApp::loadFace(string face){
 	src.loadImage(face);
 	if(src.getWidth() > 0) {
-		srcTracker.update(toCv(src));
-		srcPoints = srcTracker.getImagePoints();
+        srcPoints = faceSubstitution.getSrcPoints(src);
 	}
 }
 
