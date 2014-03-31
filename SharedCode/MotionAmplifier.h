@@ -31,8 +31,8 @@ public:
     MotionAmplifier()
     :strength(0)
     ,learningRate(.95)
-    ,blurAmount(1)
-    ,windowSize(4) {
+    ,blurAmount(3)
+    ,windowSize(8) {
     }
     
     void setup(int w, int h, int stepSize, float rescale = 1) {
@@ -74,7 +74,9 @@ public:
         duplicateFirstChannel(flow.getFlow(), flow3);
         flow3 *= scaleFactor;
         flow3 += cv::Scalar_<float>(.5, .5, 0);
-        ofxCv::blur(flow3, blurAmount);
+        if(blurAmount > 0) {
+            ofxCv::blur(flow3, blurAmount);
+        }
         int w = flow3.cols, h = flow3.rows;
         if(needToReset || accumulator.size() != flow3.size()) {
 			needToReset = false;

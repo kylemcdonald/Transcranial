@@ -6,7 +6,8 @@
 #include "ofxOsc.h"
 #include "FrameDifference.h"
 
-#define USE_VIDEO
+//#define USE_VIDEO
+#define USE_EDSDK
 
 using namespace ofxCv;
 using namespace cv;
@@ -99,6 +100,9 @@ public:
         video.play();
 #else
         video.setup();
+        #ifdef USE_EDSDK
+            video.setDeviceType(EDSDK_T2I);
+        #endif
 #endif
         
         ofFbo::Settings settings;
@@ -205,7 +209,7 @@ public:
             ofVec2f offset = center - bodyCenter;
             float orientation = atan2f(offset.y, offset.x);
             float spread = totalStability * spreadAmplitude;
-            ofVec2f position = bodyCenter + offset * (1 + spread);
+            ofVec2f position = bodyCenter + offset + ofVec2f(offset.x, 0) * spread;
             
             float id = orientation; //contours.getLabel(i) % 3;
             
@@ -238,14 +242,15 @@ public:
         ofEnableAlphaBlending();
         
         if(debug) {
+            ofPushStyle();
+            ofEnableBlendMode(OF_BLENDMODE_ADD);
+            
             if(showVideo) {
                 video.draw(0, 0);
             }
             
             drawMat(motion.getDifference(), 0, 0);
             
-            ofPushStyle();
-            ofEnableBlendMode(OF_BLENDMODE_ADD);
             ofSetColor(magentaPrint, 10);
             drawMat(thresholded, 0, 0);
             

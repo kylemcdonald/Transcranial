@@ -1,18 +1,20 @@
 #pragma once
 
-//#define USE_VIDEO
+#define USE_VIDEO
+//#define USE_EDSDK
 
 #include "ofMain.h"
 #include "ofxSlitScan.h"
 #include "ofxUI.h"
 #include "ofxCv.h"
-#include "RateTimer.h"
 #include "ofxFaceTrackerThreaded.h"
+#include "ofxEdsdkCam.h"
+#include "RateTimer.h"
 
 #include "FaceOsc.h"
+#include "ofxOscSender.h"
 #include "Clone.h"
 #include "MotionAmplifier.h"
-#include "FrameDifference.h"
 
 class testApp : public ofBaseApp {
 public:
@@ -27,48 +29,43 @@ public:
 	void keyPressed(int key);
     
     ofxUICanvas* gui;
-    float offset = 280;
+    float offset = 85;
+    float motionMax = 50;
     bool debug = true;
-    bool enableFaceSubstitution = false;
-    bool enableSlitScan = false;
-    bool enableMotionAmplifier = false;
-    bool enableBinaryPatterns = false;
-    float motionThreshold = 125;
     
-    ofxOscReceiver osc;
-    FaceOsc faceOsc;
-	ofxFaceTrackerThreaded camTracker;
+    ofxOscReceiver oscInput;
     
 #ifdef USE_VIDEO
     ofVideoPlayer cam;
 #else
-	ofVideoGrabber cam;
+    #ifdef USE_EDSDK
+        ofxEdsdkCam cam;
+    #else
+        ofVideoGrabber cam;
+    #endif
 #endif
     
-    RateTimer camTimer;
+    ofxEdsdk::RateTimer camTimer;
     
-    FrameDifference motion;
-	
+    // face tracking, face substitution
+    FaceOsc faceOsc;
+	ofxFaceTrackerThreaded camTracker;
 	ofxFaceTracker srcTracker;
 	ofImage src;
 	vector<ofVec2f> srcPoints;
-	
 	bool cloneReady;
 	Clone clone;
 	ofFbo srcFbo, maskFbo;
-
 	ofDirectory faces;
 	int currentFace;
     
-    ofShader binaryEffects;
-    ofFbo binary;
-    ofShader displacement;
-    
+    // delay
     ofxSlitScan slitScan;
-    ofVideoGrabber grabber;
     
+    // blend
     ofShader lighten;
     
+    // motion amplification
     MotionAmplifier motionAmplifier;
     ofFbo amplifiedMotion;
 };
