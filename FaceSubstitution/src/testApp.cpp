@@ -6,12 +6,8 @@ void testApp::setupGui() {
     gui = new ofxUICanvas();
     gui->addFPS();
     gui->addToggle("Debug", &debug);
-    gui->addToggle("Enable face sub", &enableFaceSubstitution);
-    gui->addToggle("Enable slit scan", &enableSlitScan);
-    gui->addToggle("Enable motion amp", &enableMotionAmplifier);
-    gui->addToggle("Enable binary patt", &enableBinaryPatterns);
     gui->addSlider("Offset", 0, 600, &offset);
-    gui->addSlider("Motion threshold", 100, 1000, &motionThreshold);
+    gui->addSlider("Motion max", 0, 100, &motionMax);
     gui->addSlider("Motion strength", -100, 100, &motionAmplifier.strength);
     gui->addSlider("Motion learning rate", 0, 1, &motionAmplifier.learningRate);
     gui->addSlider("Motion blur amount", 0, 15, &motionAmplifier.blurAmount);
@@ -29,8 +25,12 @@ void testApp::setup() {
     cam.play();
 #else
     cam.setDeviceID(0);
-	cam.initGrabber(1280, 720);
+    cam.initGrabber(1280, 720);
+    #ifdef USE_EDSDK
+        cam.setDeviceType(EDSDK_MKII);
+    #endif
 #endif
+    camTimer.setSmoothing(.5);
     
 	clone.setup(cam.getWidth(), cam.getHeight());
 	ofFbo::Settings settings;
@@ -44,30 +44,25 @@ void testApp::setup() {
 	srcTracker.setAttempts(4);
     
 	faces.allowExt("jpg");
-	faces.allowExt("png");
 	faces.listDir("faces");
 	currentFace = 0;
 	if(faces.size()!=0){
 		loadFace(faces.getPath(currentFace));
 	}
     
-    binaryEffects.load("", "shaders/BinaryEffects.frag");
-    binary.allocate(cam.getWidth(), cam.getHeight());
-    displacement.load("shaders/Displacement");
-    
     faceOsc.osc.setup("192.168.0.255", 8338);
-    osc.setup(7401);
+    oscInput.setup(7401);
     
     ofImage distortionMap;
     distortionMap.loadImage("images/white.png");
     slitScan.setup(cam.getWidth(), cam.getHeight(), 100);
     slitScan.setDelayMap(distortionMap);
-    slitScan.setBlending(true);
+    slitScan.setBlending(false);
     slitScan.setTimeDelayAndWidth(60, 0);
     
     lighten.load("shaders/Lighten");
     
-    motionAmplifier.setup(cam.getWidth(), cam.getHeight(), 1, .1);
+    motionAmplifier.setup(cam.getWidth(), cam.getHeight(), 1, .25);
     amplifiedMotion.allocate(cam.getWidth(), cam.getHeight());
     
     setupGui();
@@ -75,88 +70,65 @@ void testApp::setup() {
 
 void testApp::exit() {
     camTracker.stopThread();
-    cam.close();
 }
 
 void testApp::update() {
-    while(osc.hasWaitingMessages()) {
+    while(oscInput.hasWaitingMessages()) {
         ofxOscMessage msg;
-        osc.getNextMessage(&msg);
+        oscInput.getNextMessage(&msg);
         if(msg.getAddress() == "/delay") {
             float delaySeconds = msg.getArgAsFloat(0) / 1000.;
-            int delayFrames = delaySeconds * camTimer.getFramerate();
+            int delayFrames = delaySeconds * camTimer.getFrameRate();
             delayFrames = MIN(delayFrames, slitScan.getCapacity());
             ofLog() << delaySeconds << " " << delayFrames;
             slitScan.setTimeDelayAndWidth(delayFrames, 0);
         }
     }
     
+    float normalizedMotion = ofGetKeyPressed(' ') ? 1 : 0;
+    motionAmplifier.strength = normalizedMotion * motionMax;
+    
 	cam.update();
 	if(cam.isFrameNew()) {
         camTimer.tick();
         
-        motion.update(cam);
-        if(motion.getMean() > 1/motionThreshold) {
-            motionAmplifier.strength = 100;
-        } else {
-            motionAmplifier.strength = 0;
+        // step 1: face tracking and optical flow
+        
+        // face tracking
+        camTracker.update(toCv(cam));
+        faceOsc.sendFaceOsc(camTracker);
+        
+        // optical flow
+        motionAmplifier.update(slitScan.getOutputImage());
+        
+        // step 2: face sub with two different images
+        cloneReady = camTracker.getFound();
+        if(cloneReady) {
+            ofMesh camMesh = camTracker.getImageMesh();
+            camMesh.clearTexCoords();
+            camMesh.addTexCoords(srcPoints);
+            
+            maskFbo.begin();
+            ofClear(0, 255);
+            camMesh.draw();
+            maskFbo.end();
+            
+            srcFbo.begin();
+            ofClear(0, 255);
+            src.bind();
+            camMesh.draw();
+            src.unbind();
+            srcFbo.end();
+            
+            clone.setStrength(16);
+            clone.update(srcFbo.getTextureReference(), cam.getTextureReference(), maskFbo.getTextureReference());
         }
         
-        if(enableSlitScan) {
-            slitScan.addImage(cam);
-        }
+        amplifiedMotion.begin();
+        motionAmplifier.draw(slitScan.getOutputImage());
+        amplifiedMotion.end();
         
-        if(enableMotionAmplifier) {
-            amplifiedMotion.begin();
-            if(enableSlitScan) {
-                motionAmplifier.update(slitScan.getOutputImage());
-                motionAmplifier.draw(slitScan.getOutputImage());
-            } else {
-                motionAmplifier.update(cam);
-                motionAmplifier.draw(cam);
-            }
-            amplifiedMotion.end();
-        }
-        
-        if(enableFaceSubstitution) {
-            camTracker.update(toCv(cam));
-            faceOsc.sendFaceOsc(camTracker);
-            cloneReady = camTracker.getFound();
-            if(cloneReady) {
-                binary.begin();
-                binaryEffects.begin();
-                binaryEffects.setUniform3f("iResolution", cam.getWidth(), cam.getHeight(), 0);
-                binaryEffects.setUniform1f("iGlobalTime", ofGetElapsedTimef());
-                cam.draw(0, 0);
-                binaryEffects.end();
-                binary.end();
-                
-                ofMesh camMesh = camTracker.getImageMesh();
-                camMesh.clearTexCoords();
-                camMesh.addTexCoords(srcPoints);
-                
-                maskFbo.begin();
-                ofClear(0, 255);
-                camMesh.draw();
-                ofPushStyle();
-                if(enableBinaryPatterns) {
-                    ofEnableBlendMode(OF_BLENDMODE_MULTIPLY);
-                    binary.draw(0, 0);
-                }
-                ofPopStyle();
-                maskFbo.end();
-                
-                srcFbo.begin();
-                ofClear(0, 255);
-                src.bind();
-                camMesh.draw();
-                src.unbind();
-                srcFbo.end();
-                
-                clone.setStrength(16);
-                clone.update(srcFbo.getTextureReference(), cam.getTextureReference(), maskFbo.getTextureReference());
-            }
-        }
+        slitScan.addImage(cam);
 	}
 }
 
@@ -173,20 +145,8 @@ void testApp::draw() {
         float h = cam.getHeight();
         lighten.begin();
         lighten.setUniform2f("resolution", w, h);
-        if(enableFaceSubstitution) {
-            lighten.setUniformTexture("a", clone.getTexture(), 1);
-        } else {
-            lighten.setUniformTexture("a", cam, 1);
-        }
-        if(enableMotionAmplifier) {
-            lighten.setUniformTexture("b", amplifiedMotion, 2);
-        } else {
-            if(enableSlitScan) {
-                lighten.setUniformTexture("b", slitScan.getOutputImage(), 2);
-            } else {
-                lighten.setUniformTexture("b", cam, 2);
-            }
-        }
+        lighten.setUniformTexture("a", clone.getTexture(), 1);
+        lighten.setUniformTexture("b", amplifiedMotion, 2);
         lighten.setUniform2f("offset", offset, 0);
         cam.draw(0, 0);
         lighten.end();
@@ -235,8 +195,10 @@ void testApp::keyPressed(int key){
             currentFace--;
             break;
 	}
-	currentFace = ofClamp(currentFace,0,faces.size()-1);
-	if(faces.size()!=0){
-		loadFace(faces.getPath(currentFace));
-	}
+    if(key == OF_KEY_UP || key == OF_KEY_DOWN) {
+        currentFace = ofClamp(currentFace,0,faces.size()-1);
+        if(faces.size()!=0){
+            loadFace(faces.getPath(currentFace));
+        }
+    }
 }
