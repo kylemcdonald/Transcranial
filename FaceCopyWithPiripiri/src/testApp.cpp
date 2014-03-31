@@ -222,9 +222,11 @@ void testApp::setupFacePolygons(){
 }
 
 int currentFrame = 0;
-
+float polygonsAlpha = 0;
+float videoAlpha = 1.;
 
 void testApp::setup() {
+    ofBackground(0, 0, 0);
     ofSetDataPathRoot("../../../../../SharedData/");
 
     sender.setup("localhost", 8877);
@@ -247,17 +249,14 @@ void testApp::setup() {
 
 void testApp::update() {
     ofSetWindowTitle(ofToString(currentFrame) + " / " + ofToString(video.getTotalNumFrames()));
-    if (keyvalue.get("/current_frame", currentFrame));
+    
     if (recordedImagePoints.size()>0) {
+        keyvalue.get("/current_frame", currentFrame);
         video.setFrame(currentFrame);
         video.update();
 
-        Mat mat= toCv(recordedObjectPoints[currentFrame]);
-        classifier.classify(mat);
-
         for (int i=0;i<polygons.size() ;i++ ){
             polygons[i].update(recordedImagePoints[currentFrame]);
-
             //osc
             ofxOscMessage m;
             m.setAddress("/faceparts");
@@ -274,10 +273,12 @@ void testApp::draw() {
         ofPushMatrix();
         float scale = ofGetWidth() / video.getWidth();
         ofScale(scale, scale);
-        ofSetColor(ofColor::white);
+        keyvalue.get("/polygons_alpha", polygonsAlpha);
+        keyvalue.get("/video_alpha", videoAlpha);
+        ofSetColor(ofColor::white, videoAlpha * 255.);
         video.draw(0, 0);
         for (int i=0;i<polygons.size() ;i++ ){
-            polygons[i].draw();
+            polygons[i].draw(polygonsAlpha);
         }
         ofPopMatrix();
     }
@@ -324,21 +325,4 @@ void testApp::keyPressed(int key) {
             polygons[i].toggleCalibration();
         }
     }
-	if(key == 'r') {
-		tracker.reset();
-		classifier.reset();
-	}
-	if(key == 'e') {
-		classifier.addExpression();
-	}
-	if(key == 'a') {
-        Mat mat= toCv(recordedObjectPoints[currentFrame]);
-		classifier.addSample(mat);
-	}
-	if(key == 's') {
-		classifier.save("expressions");
-	}
-	if(key == 'l') {
-		classifier.load("expressions");
-	}
 }

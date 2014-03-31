@@ -51,8 +51,8 @@ public:
         //change curve
         diffNormArea = sin(diffNormArea * PI/2.0);
     }
-    void draw(){
-        ofSetColor(ofColor::fromHsb(180 * (1 - diffNormArea), 255, 255, 100) );
+    void draw(float alpha = 1.){
+        ofSetColor(ofColor::fromHsb(180 * (1 - diffNormArea), 255, 255, 100 * alpha) );
         ofFill();
         ofSetPolyMode(OF_POLY_WINDING_ODD);
         ofBeginShape();
@@ -129,7 +129,6 @@ public:
     vector<ofMesh> recordedImagePoints;
     vector<ofMesh> recordedObjectPoints;
     vector<vector<float> > recordedGestures;
-	ExpressionClassifier classifier;
     vector<FacePoly>polygons;
     ofxKeyValueOSC keyvalue;
 };
