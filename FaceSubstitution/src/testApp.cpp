@@ -18,7 +18,6 @@ void testApp::setupGui() {
 void testApp::setup() {
     ofSetDataPathRoot("../../../../../SharedData/");
 	ofSetVerticalSync(true);
-	cloneReady = false;
     
 #ifdef USE_VIDEO
     cam.loadMovie("videos/milos-extreme.mov");
@@ -39,6 +38,9 @@ void testApp::setup() {
 	maskFbo.allocate(settings);
 	srcFbo.allocate(settings);
 	camTracker.setup();
+    camTracker.setRescale(.25);
+    camTracker.setHaarMinSize(cam.getHeight() / 4);
+    
 	srcTracker.setup();
 	srcTracker.setIterations(25);
 	srcTracker.setAttempts(4);
@@ -69,7 +71,7 @@ void testApp::setup() {
 }
 
 void testApp::exit() {
-    camTracker.stopThread();
+//    camTracker.stopThread();
 }
 
 void testApp::update() {
@@ -102,8 +104,7 @@ void testApp::update() {
         motionAmplifier.update(slitScan.getOutputImage());
         
         // step 2: face sub with two different images
-        cloneReady = camTracker.getFound();
-        if(cloneReady) {
+        if(camTracker.getFound()) {
             ofMesh camMesh = camTracker.getImageMesh();
             camMesh.clearTexCoords();
             camMesh.addTexCoords(srcPoints);
