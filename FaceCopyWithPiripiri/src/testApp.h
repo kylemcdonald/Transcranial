@@ -118,7 +118,6 @@ public:
     void keyPressed(int key);
     void load(string filename);
     void save(string filename);
-    void drawClassifierInfo();
     void setupFacePolygons();
 
 	ofVideoPlayer video;

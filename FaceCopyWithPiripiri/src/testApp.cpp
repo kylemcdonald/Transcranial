@@ -230,7 +230,6 @@ void testApp::setup() {
     sender.setup("localhost", 8877);
     keyvalue.setup(8866);
     syphoneServer.setName("FacePiripiri");
-
     video.loadMovie("video_PhotoJpeg.mov");
 
 	tracker.setup();
@@ -249,7 +248,6 @@ void testApp::setup() {
 void testApp::update() {
     ofSetWindowTitle(ofToString(currentFrame) + " / " + ofToString(video.getTotalNumFrames()));
     if (keyvalue.get("/current_frame", currentFrame));
-
     if (recordedImagePoints.size()>0) {
         video.setFrame(currentFrame);
         video.update();
@@ -285,54 +283,6 @@ void testApp::draw() {
     }
 
     syphoneServer.publishScreen();
-
-//    else{
-//        ofPushMatrix();
-//        float scale = ofGetWidth() / video.getWidth();
-//        ofScale(scale, scale);
-//        video.draw(0, 0);
-//        ofSetLineWidth(2);
-//        tracker.draw();
-//        ofDrawBitmapString(ofToString((int) ofGetFrameRate()), 10, 20);
-//        ofPopMatrix();
-//    }
-//    drawClassifierInfo();
-
-}
-void testApp::drawClassifierInfo(){
-	int w = 100, h = 12;
-	ofPushStyle();
-	ofPushMatrix();
-	ofTranslate(5, 10);
-	int n = classifier.size();
-	int primary = classifier.getPrimaryExpression();
-    for(int i = 0; i < n; i++){
-		ofSetColor(i == primary ? ofColor::red : ofColor::black);
-		ofRect(0, 0, w * classifier.getProbability(i) + .5, h);
-		ofSetColor(255);
-		ofDrawBitmapString(classifier.getDescription(i), 5, 9);
-		ofTranslate(0, h + 5);
-        ofxOscMessage m;
-        m.setAddress("/probability");
-        m.addIntArg(i);
-        m.addFloatArg(classifier.getProbability(i));
-        sender.sendMessage(m);
-    }
-	ofPopMatrix();
-	ofPopStyle();
-	
-	ofDrawBitmapString(ofToString((int) ofGetFrameRate()), ofGetWidth() - 20, ofGetHeight() - 10);
-	drawHighlightString(
-                        string() +
-                        "L - load json\n" +
-                        "S - save tracker to json\n" +
-                        "r - reset\n" +
-                        "e - add expression\n" +
-                        "a - add sample\n" +
-                        "s - save expressions\n"
-                        "l - load expressions",
-                        14, ofGetHeight() - 7 * 12);
-    
 }
 void testApp::keyPressed(int key) {
     if(key == 'L'){

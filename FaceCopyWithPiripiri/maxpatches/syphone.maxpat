@@ -32,6 +32,21 @@
 				"box" : 				{
 					"fontname" : "Arial",
 					"fontsize" : 12.0,
+					"frgb" : 0.0,
+					"id" : "obj-46",
+					"linecount" : 2,
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 54.875664, 4.0, 150.0, 33.0 ],
+					"text" : "this patch should run on kyle's computer"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"fontname" : "Arial",
+					"fontsize" : 12.0,
 					"id" : "obj-43",
 					"maxclass" : "message",
 					"numinlets" : 2,
@@ -687,7 +702,7 @@
 					"patching_rect" : [ 763.5, 48.0, 100.0, 40.0 ],
 					"preset_data" : [ 						{
 							"number" : 1,
-							"data" : [ 5, "obj-16", "flonum", "float", 1.0, 5, "obj-53", "flonum", "float", 1.0, 5, "obj-18", "flonum", "float", 1.0, 5, "obj-54", "flonum", "float", 0.0, 5, "obj-11", "flonum", "float", 0.0, 5, "obj-22", "flonum", "float", 1.0, 5, "obj-25", "flonum", "float", 0.0, 5, "obj-42", "flonum", "float", 0.266, 5, "obj-6", "flonum", "float", 0.254 ]
+							"data" : [ 5, "obj-16", "flonum", "float", 0.731, 5, "obj-53", "flonum", "float", 1.0, 5, "obj-18", "flonum", "float", 1.163, 5, "obj-54", "flonum", "float", 0.0, 5, "obj-11", "flonum", "float", 0.0, 5, "obj-22", "flonum", "float", 1.269, 5, "obj-25", "flonum", "float", 0.832, 5, "obj-42", "flonum", "float", 0.63, 5, "obj-6", "flonum", "float", 0.218 ]
 						}
  ]
 				}
