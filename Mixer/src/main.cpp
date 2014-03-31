@@ -6,8 +6,8 @@
 #include "ofxOsc.h"
 #include "FrameDifference.h"
 
-//#define USE_VIDEO
-#define USE_EDSDK
+#define USE_VIDEO
+//#define USE_EDSDK
 
 using namespace ofxCv;
 using namespace cv;
@@ -34,11 +34,14 @@ public:
     bool showVideo = false;
     float rescale = .25;
     float minAreaRadius = 16;
+    float thresholdValue = 60;
+    float dilationAmount = 2;
+    float verticalOffset = 40;
+    float bodyCenterSmoothing = .5;
+    
     float stability = 1.;//.6; //1.
     float spreadAmplitude = .5;
     float repetitionSteps = 1;//10;
-    float thresholdValue = 60;
-    float dilationAmount = 2;
     float rotationAmplitude = 180;//20;
     float rotationRate = 10;//1;
     float rotationNoise = .1;//.5;
@@ -47,8 +50,6 @@ public:
     float scaleNoise = .1;//.5;
     float motionMin = .02 / 5; // .01
     float motionMax = .02 / 3; //.005;
-    float verticalOffset = 40;
-    float bodyCenterSmoothing = .5;
     
     float motionValue = 0;
     float smoothedMotionValue = 0;
@@ -59,6 +60,55 @@ public:
     
     ofVec2f bodyCenter;
     
+    void loadScene1() {
+        stability = 0;
+        spreadAmplitude = .5;
+        repetitionSteps = 1;
+        rotationAmplitude = 180;
+        rotationRate = 10;
+        rotationNoise = .1;
+        scaleAmplitude = .87;
+        scaleRate = 10;
+        scaleNoise = .1;
+        motionSmoothingUp = .99;
+        motionSmoothingDown = .33;
+        motionMin = .004;
+        motionMax = .016;
+    }
+    
+    void loadScene2() {
+        stability = 0;
+        spreadAmplitude = 2;
+        repetitionSteps = 1;
+        rotationAmplitude = 0;
+        rotationRate = 10;
+        rotationNoise = .1;
+        scaleAmplitude = .87;
+        scaleRate = 10;
+        scaleNoise = .1;
+        motionSmoothingUp = .99;
+        motionSmoothingDown = .92;
+        motionMin = .004;
+        motionMax = .010;
+    }
+    
+    void loadScene3() {
+        stability = 0;
+        spreadAmplitude = 2;
+        repetitionSteps = 40;
+        rotationAmplitude = 360;
+        rotationRate = 5;
+        rotationNoise = .2;
+        scaleAmplitude = 2;
+        scaleRate = 2.46;
+        scaleNoise = .1;
+        motionSmoothingUp = .99;
+        motionSmoothingDown = .07;
+        motionMin = .004;
+        motionMax = .008;
+    }
+    
+    
     void setupGui() {
         gui = new ofxUICanvas();
         gui->addLabel("Settings");
@@ -68,8 +118,9 @@ public:
         gui->addSlider("Rescale", .1, 1, &rescale);
         gui->addSlider("Threshold", 0, 255, &thresholdValue);
         gui->addSlider("Dilation", 0, 6, &dilationAmount);
-        gui->addSpacer();
         gui->addSlider("Vertical offset", -200, 200, &verticalOffset);
+        gui->addSlider("Body center smoothing", 0, 1, &bodyCenterSmoothing);
+        gui->addSpacer();
         gui->addSlider("Min area radius", 0, 50, &minAreaRadius);
         gui->addSlider("Stability", 0, 1, &stability);
         gui->addSlider("Spread amplitude", 0, 2, &spreadAmplitude);
@@ -86,8 +137,8 @@ public:
         gui->addSlider("Motion Smoothing-", 0, 1, &motionSmoothingDown);
         gui->addSlider("Motion min", 0, .02, &motionMin);
         gui->addSlider("Motion max", 0, .02, &motionMax);
-        gui->addSlider("Body center smoothing", 0, 1, &bodyCenterSmoothing);
         gui->autoSizeToFitWidgets();
+        keyPressed('\t');
     }
     
     void setup() {
@@ -276,12 +327,35 @@ public:
         }
     }
     
+    int startX, startY;
+    float startStability;
+    void mousePressed(int x, int y, int button) {
+        startX = x, startY = y;
+        startStability = stability;
+    }
+    
+    void mouseDragged(int x, int y, int button) {
+        int diffX = x - startX, diffY = y - startY;
+        stability = startStability + diffX / 500.;
+        stability = ofClamp(stability, 0, 1);
+    }
+    
     void keyPressed(int key) {
         if(key == 'f') {
             ofToggleFullscreen();
         }
         if(key == '\t') {
             gui->toggleVisible();
+            if(gui->isVisible()) {
+                ofShowCursor();
+            } else {
+                ofHideCursor();
+            }
+        }
+        switch(key) {
+            case '1': loadScene1(); break;
+            case '2': loadScene2(); break;
+            case '3': loadScene3(); break;
         }
     }
 };
