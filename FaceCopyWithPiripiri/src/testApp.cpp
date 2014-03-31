@@ -1,8 +1,11 @@
 #include "testApp.h"
 #include "ofxJSONElement.h"
+#include "ofxSyphonClient.h"
+
 using namespace cv;
 using namespace ofxCv;
 ofxOscSender sender;
+ofxSyphonServer syphoneServer;
 
 ofxFaceTracker::Gesture gestureIds[] = {
     ofxFaceTracker::MOUTH_WIDTH,
@@ -226,6 +229,7 @@ void testApp::setup() {
 
     sender.setup("localhost", 8877);
     keyvalue.setup(8866);
+    syphoneServer.setName("FacePiripiri");
 
     video.loadMovie("video_PhotoJpeg.mov");
 
@@ -245,7 +249,7 @@ void testApp::setup() {
 void testApp::update() {
     ofSetWindowTitle(ofToString(currentFrame) + " / " + ofToString(video.getTotalNumFrames()));
     if (keyvalue.get("/current_frame", currentFrame));
-    cout << currentFrame << endl;
+
     if (recordedImagePoints.size()>0) {
         video.setFrame(currentFrame);
         video.update();
@@ -263,10 +267,7 @@ void testApp::update() {
             m.addFloatArg(polygons[i].getDiffNormArea() );
             sender.sendMessage(m);
         }
-
     }
-
-
 }
 
 void testApp::draw() {
@@ -282,6 +283,9 @@ void testApp::draw() {
         }
         ofPopMatrix();
     }
+
+    syphoneServer.publishScreen();
+
 //    else{
 //        ofPushMatrix();
 //        float scale = ofGetWidth() / video.getWidth();
@@ -342,7 +346,6 @@ void testApp::keyPressed(int key) {
         if (currentFrame<0) {
             currentFrame = video.getTotalNumFrames() - 2;
         }
-        cout << currentFrame << endl;
     }
     if(key == OF_KEY_RIGHT){
         currentFrame++;
