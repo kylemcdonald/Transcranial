@@ -8,8 +8,8 @@ void testApp::setupGui() {
     gui->addToggle("Debug", &(debug=false));
     gui->addSlider("Offset", 0, 600, &(offset=0));
     gui->addSlider("Tracker rescale", .1, 1, &(trackerRescale=.5));
-    gui->addSlider("Substitution strength", 1, 64, &(substitutionStrength=16));
-    gui->addSlider("Motion max", 0, 100, &(motionMax=50));
+    gui->addSlider("Substitution strength", 0, 64, &(substitutionStrength=0));
+    gui->addSlider("Motion max", 0, 100, &(motionMax=12));
     gui->addSlider("Motion strength", -100, 100, &motionAmplifier.strength);
     gui->addSlider("Motion learning rate", 0, 1, &motionAmplifier.learningRate);
     gui->addSlider("Motion blur amount", 0, 15, &motionAmplifier.blurAmount);

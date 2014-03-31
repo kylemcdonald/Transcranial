@@ -6,8 +6,8 @@
 #include "ofxOsc.h"
 #include "FrameDifference.h"
 
-#define USE_VIDEO
-//#define USE_EDSDK
+//#define USE_VIDEO
+#define USE_EDSDK
 
 using namespace ofxCv;
 using namespace cv;
