@@ -6,6 +6,7 @@
 *.DS_*
 *.xcworkspacedata
 xcuserdata/
+DerivedData/
 
 *.opensdf
 *.sdf
