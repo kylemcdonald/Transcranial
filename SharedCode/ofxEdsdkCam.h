@@ -25,10 +25,10 @@ public:
     void initGrabber(int width, int height) {
         setup();
     }
-    unsigned char* getPixels() {
-        return getLivePixels().getPixels();
+    unsigned char* getData() {
+        return getLivePixels().getData();
     }
-    ofPixels& getPixelsRef() {
+    ofPixels& getPixels() {
         return getLivePixels();
     }
     ofTexture& getTextureReference() {

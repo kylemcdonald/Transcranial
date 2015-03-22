@@ -48,7 +48,7 @@ public:
         src.unbind();
         srcFbo.end();
         
-        clone.update(srcFbo.getTextureReference(), cam.getTextureReference(), maskFbo.getTextureReference());
+        clone.update(srcFbo.getTexture(), cam.getTexture(), maskFbo.getTexture());
         ofPopStyle();
     }
 };

@@ -50,6 +50,8 @@
 		2780666A18DDCA2500A71ED4 /* Utilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2780665D18DDCA2500A71ED4 /* Utilities.cpp */; };
 		2780666B18DDCA2500A71ED4 /* Wrappers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2780665E18DDCA2500A71ED4 /* Wrappers.cpp */; };
 		2780666C18DDCA2500A71ED4 /* opencv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2780665F18DDCA2500A71ED4 /* opencv.a */; };
+		2790DC251ABF1007001AB3DC /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2790DC241ABF1007001AB3DC /* AVFoundation.framework */; };
+		2790DC291ABF1850001AB3DC /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2790DC281ABF1850001AB3DC /* CoreMedia.framework */; };
 		27926A4513EA7BE3003F6797 /* DPP.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27926A3313EA7BE3003F6797 /* DPP.framework */; };
 		27926A4613EA7BE3003F6797 /* EDSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27926A3413EA7BE3003F6797 /* EDSDK.framework */; };
 		27926A4A13EA7BE3003F6797 /* ofxEdsdk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27926A4313EA7BE3003F6797 /* ofxEdsdk.cpp */; };
@@ -237,6 +239,8 @@
 		2780665D18DDCA2500A71ED4 /* Utilities.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Utilities.cpp; sourceTree = "<group>"; };
 		2780665E18DDCA2500A71ED4 /* Wrappers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Wrappers.cpp; sourceTree = "<group>"; };
 		2780665F18DDCA2500A71ED4 /* opencv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = opencv.a; path = ../../../addons/ofxOpenCv/libs/opencv/lib/osx/opencv.a; sourceTree = "<group>"; };
+		2790DC241ABF1007001AB3DC /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = ../../../../../../../System/Library/Frameworks/AVFoundation.framework; sourceTree = "<group>"; };
+		2790DC281ABF1850001AB3DC /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = ../../../../../../../System/Library/Frameworks/CoreMedia.framework; sourceTree = "<group>"; };
 		27926A3313EA7BE3003F6797 /* DPP.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DPP.framework; path = ../../../addons/ofxEdsdk/lib/EDSDK/Framework/DPP.framework; sourceTree = SOURCE_ROOT; };
 		27926A3413EA7BE3003F6797 /* EDSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = EDSDK.framework; path = ../../../addons/ofxEdsdk/lib/EDSDK/Framework/EDSDK.framework; sourceTree = SOURCE_ROOT; };
 		27926A3813EA7BE3003F6797 /* EDSDK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EDSDK.h; path = ../../../addons/ofxEdsdk/lib/EDSDK/Header/EDSDK.h; sourceTree = SOURCE_ROOT; };
@@ -404,6 +408,8 @@
 				275FFDA918DDCAE900444B99 /* ApplicationServices.framework in Frameworks */,
 				275FFDAB18DDCAE900444B99 /* CoreAudio.framework in Frameworks */,
 				275FFDA518DDCAE800444B99 /* AppKit.framework in Frameworks */,
+				2790DC251ABF1007001AB3DC /* AVFoundation.framework in Frameworks */,
+				2790DC291ABF1850001AB3DC /* CoreMedia.framework in Frameworks */,
 				275FFDB118DDCAE900444B99 /* QTKit.framework in Frameworks */,
 				275FFDB018DDCAE900444B99 /* CoreVideo.framework in Frameworks */,
 				E4EB6799138ADC1D00A09F29 /* GLUT.framework in Frameworks */,
@@ -1009,6 +1015,8 @@
 		BBAB23C913894ECA00AA2426 /* system frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2790DC281ABF1850001AB3DC /* CoreMedia.framework */,
+				2790DC241ABF1007001AB3DC /* AVFoundation.framework */,
 				275FFD9618DDCAE800444B99 /* Accelerate.framework */,
 				275FFD9718DDCAE800444B99 /* AppKit.framework */,
 				275FFD9818DDCAE800444B99 /* Cocoa.framework */,

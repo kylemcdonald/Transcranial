@@ -45,7 +45,7 @@ void testApp::setup() {
 	currentFace = 0;
     loadNextPair();
 	
-    faceOsc.osc.setup("192.168.0.255", 8338);
+    faceOsc.osc.setup("localhost", 8338);
     oscInput.setup(7401);
     
     ofImage distortionMap;

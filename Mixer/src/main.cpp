@@ -6,8 +6,8 @@
 #include "ofxOsc.h"
 #include "FrameDifference.h"
 
-//#define USE_VIDEO
-#define USE_EDSDK
+#define USE_VIDEO
+//#define USE_EDSDK
 
 using namespace ofxCv;
 using namespace cv;
@@ -166,7 +166,7 @@ public:
         contours.getTracker().setMaximumDistance(100);
         setupGui();
         
-        osc.setup("192.168.0.255", 7400);
+        osc.setup("localhost", 7400);
     }
     
     void update() {

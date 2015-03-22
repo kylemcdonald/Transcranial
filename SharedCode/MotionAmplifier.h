@@ -89,7 +89,7 @@ public:
     }
     
     void draw(ofBaseHasTexture& tex) {
-        draw(tex.getTextureReference());
+        draw(tex.getTexture());
     }
     
     void draw(ofTexture& tex) {

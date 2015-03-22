@@ -1,7 +1,7 @@
 #pragma once
 
-//#define USE_VIDEO
-#define USE_EDSDK
+#define USE_VIDEO
+//#define USE_EDSDK
 
 #include "ofMain.h"
 #include "ofxSlitScan.h"
