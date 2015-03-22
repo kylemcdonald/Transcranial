@@ -6,8 +6,8 @@
 #include "ofxOsc.h"
 #include "FrameDifference.h"
 
-#define USE_VIDEO
-//#define USE_EDSDK
+//#define USE_VIDEO
+#define USE_EDSDK
 
 using namespace ofxCv;
 using namespace cv;
@@ -250,7 +250,7 @@ public:
             // draw body image
             ofEnableBlendMode(OF_BLENDMODE_MULTIPLY);
             ofSetColor(255);
-            video.getTextureReference().drawSubsection(sx, sy, w, h, sx, sy);
+            video.getTexture().drawSubsection(sx, sy, w, h, sx, sy);
             buffer.end();
             
             ofEnableBlendMode(OF_BLENDMODE_ALPHA);

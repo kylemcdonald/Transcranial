@@ -25,16 +25,25 @@ public:
     void initGrabber(int width, int height) {
         setup();
     }
-    unsigned char* getData() {
+    const unsigned char* getData() const {
         return getLivePixels().getData();
     }
     ofPixels& getPixels() {
+        return const_cast<ofPixels&>(getLivePixels());
+    }
+    const ofPixels& getPixels() const {
         return getLivePixels();
     }
-    ofTexture& getTextureReference() {
+    ofTexture& getTexture() {
+        return const_cast<ofTexture&>(getLiveTexture());
+    }
+    const ofTexture& getTexture() const {
         return getLiveTexture();
     }
     void setUseTexture(bool useTexture) {
+    }
+    bool isUsingTexture() const {
+        return true;
     }
     int getWidth() {
         return forceWidth;

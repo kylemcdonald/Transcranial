@@ -26,13 +26,13 @@
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>2DE9C8846D9375EAACFABA8963120E8E7719BAF5</key>
-		<string>../../../../..</string>
+		<string>../../../..</string>
 		<key>36985836DF35EF8F5D7D4E20C1E7B9D301114BDF</key>
-		<string>../../../../../addons/ofxEdsdk</string>
+		<string>../../../../addons/ofxEdsdk</string>
 		<key>37526DA425E5430474A14FBFA1BC4525160B5FC1</key>
-		<string>../../../../../addons/ofxCv</string>
+		<string>../../../../addons/ofxCv</string>
 		<key>7E804D925461714118DB355C65BC964B41D94376</key>
-		<string>../../../../../addons/ofxUI</string>
+		<string>../../../../addons/ofxUI</string>
 		<key>91A3723AF8DD852654FB5F3AD9DCC6A056FF41AD</key>
 		<string>../../..</string>
 	</dict>
@@ -50,7 +50,7 @@
 			<key>IDESourceControlWCCIdentifierKey</key>
 			<string>2DE9C8846D9375EAACFABA8963120E8E7719BAF5</string>
 			<key>IDESourceControlWCCName</key>
-			<string>..</string>
+			<string></string>
 		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
