@@ -169,6 +169,12 @@ public:
         osc.setup("localhost", 7400);
     }
     
+    void exit() {
+#ifdef USE_EDSDK
+        video.close();
+#endif
+    }
+    
     void update() {
         video.update();
         if(video.isFrameNew()) {

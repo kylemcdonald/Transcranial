@@ -66,6 +66,9 @@ void testApp::setup() {
 
 void testApp::exit() {
     camTracker.stopThread();
+#ifdef USE_EDSDK
+    cam.close();
+#endif
 }
 
 void testApp::update() {
@@ -146,7 +149,7 @@ void testApp::draw() {
         if(camTracker.getFound()) {
             left = &faceSubstitution.clone.getTexture();
         } else {
-            left = &cam.getTextureReference();
+            left = &cam.getTexture();
         }
         right = &slitScan.getOutputImage().getTextureReference();
     }
