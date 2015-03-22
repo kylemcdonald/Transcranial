@@ -227,7 +227,7 @@ void testApp::setup() {
     sender.setup("localhost", 8877);
     keyvalue.setup(8866);
 
-    video.loadMovie("video_PhotoJpeg.mov");
+    video.load("video_PhotoJpeg.mov");
 
 	tracker.setup();
     tracker.setRescale(.25);
