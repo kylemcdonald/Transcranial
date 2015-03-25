@@ -27,6 +27,8 @@ public:
     ofxUICanvas* gui;
     
     FrameDifference motion;
+    RunningBackground motionRunning;
+    Mat thresholdedRunning;
     
     ofxOscSender osc;
     
@@ -36,7 +38,7 @@ public:
     float minAreaRadius = 16;
     float thresholdValue = 60;
     float dilationAmount = 2;
-    float verticalOffset = 40;
+    float verticalOffset = -32;
     float bodyCenterSmoothing = .5;
     
     float stability = 1.;//.6; //1.
@@ -51,6 +53,8 @@ public:
     float motionMin = .02 / 5; // .01
     float motionMax = .02 / 3; //.005;
     
+    const float motionRange = .1;
+    const float motionLearningTime = .250;
     float motionValue = 0;
     float smoothedMotionValue = 0;
     float motionSmoothingUp = .99;
@@ -72,8 +76,8 @@ public:
         scaleNoise = .1;
         motionSmoothingUp = .99;
         motionSmoothingDown = .33;
-        motionMin = .004;
-        motionMax = .016;
+        motionMin = .01;
+        motionMax = .05;
     }
     
     void loadScene2() {
@@ -88,8 +92,8 @@ public:
         scaleNoise = .1;
         motionSmoothingUp = .99;
         motionSmoothingDown = .92;
-        motionMin = .004;
-        motionMax = .010;
+        motionMin = .01;
+        motionMax = .05;
     }
     
     void loadScene3() {
@@ -102,10 +106,10 @@ public:
         scaleAmplitude = 2;
         scaleRate = 2.46;
         scaleNoise = .1;
-        motionSmoothingUp = .99;
+        motionSmoothingUp = .96;
         motionSmoothingDown = .07;
-        motionMin = .004;
-        motionMax = .008;
+        motionMin = .005;
+        motionMax = .030;
     }
     
     
@@ -118,7 +122,7 @@ public:
         gui->addSlider("Rescale", .1, 1, &rescale);
         gui->addSlider("Threshold", 0, 255, &thresholdValue);
         gui->addSlider("Dilation", 0, 6, &dilationAmount);
-        gui->addSlider("Vertical offset", -200, 200, &verticalOffset);
+        gui->addSlider("Vertical offset", -100, 100, &verticalOffset);
         gui->addSlider("Body center smoothing", 0, 1, &bodyCenterSmoothing);
         gui->addSpacer();
         gui->addSlider("Min area radius", 0, 50, &minAreaRadius);
@@ -131,12 +135,12 @@ public:
         gui->addSlider("Scale amplitude", 0, 2, &scaleAmplitude);
         gui->addSlider("Scale rate", 0, 10, &scaleRate);
         gui->addSlider("Scale noise", 0, 1, &scaleNoise);
-        motionSlider = gui->addSlider("Motion", 0, .02, &motionValue);
-        smoothedMotionSlider = gui->addSlider("Smoothed motion", 0, .02, &smoothedMotionValue);
+        motionSlider = gui->addSlider("Motion", 0, motionRange, &motionValue);
+        smoothedMotionSlider = gui->addSlider("Smoothed motion", 0, motionRange, &smoothedMotionValue);
         gui->addSlider("Motion Smoothing+", .9, 1, &motionSmoothingUp);
         gui->addSlider("Motion Smoothing-", 0, 1, &motionSmoothingDown);
-        gui->addSlider("Motion min", 0, .02, &motionMin);
-        gui->addSlider("Motion max", 0, .02, &motionMax);
+        gui->addSlider("Motion min", 0, motionRange, &motionMin);
+        gui->addSlider("Motion max", 0, motionRange, &motionMax);
         gui->autoSizeToFitWidgets();
         keyPressed('\t');
     }
@@ -144,7 +148,7 @@ public:
     void setup() {
         ofSetDataPathRoot("../../../../../SharedData/");
         ofSetVerticalSync(true);
-        ofSetLogLevel(OF_LOG_VERBOSE);
+//        ofSetLogLevel(OF_LOG_VERBOSE);
         
 #ifdef USE_VIDEO
         video.loadMovie("videos/melica.mp4");
@@ -166,7 +170,7 @@ public:
         contours.getTracker().setMaximumDistance(100);
         setupGui();
         
-        osc.setup("localhost", 7400);
+        osc.setup("klaus.local", 7400);
     }
     
     void exit() {
@@ -189,10 +193,16 @@ public:
     
     void updateMotion() {
         // get overall motion
-        motion.update(graySmall);
-        motionValue = motion.getMean();
+//        motion.update(graySmall);
+//        motionValue = motion.getMean();
+        
+        motionRunning.setLearningTime(motionLearningTime);
+        motionRunning.update(graySmall, thresholdedRunning);
+        motionValue = motionRunning.getPresence();
+        
         ofxOscMessage msg;
         msg.setAddress("/motion");
+        float t = ofGetElapsedTimef();
         msg.addFloatArg(motionValue);
         osc.sendMessage(msg);
         if(motionValue > smoothedMotionValue) {
@@ -222,7 +232,7 @@ public:
         ofPushMatrix();
         ofPushStyle();
         
-        float scaleFactor = ofGetWidth() / (float) MAX(1, video.getWidth());
+        float scaleFactor = ofGetHeight() / (float) MAX(1, video.getHeight());
         ofScale(scaleFactor, scaleFactor);
         ofTranslate(0, -verticalOffset);
         
@@ -306,7 +316,10 @@ public:
                 video.draw(0, 0);
             }
             
-            drawMat(motion.getDifference(), 0, 0);
+            ofPushMatrix();
+            ofScale(1 / rescale, 1 / rescale);
+            drawMat(thresholdedRunning, 0, 0);
+            ofPopMatrix();
             
             ofSetColor(magentaPrint, 10);
             drawMat(thresholded, 0, 0);
