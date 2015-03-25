@@ -4,7 +4,8 @@
 
 enum EdsdkDeviceType {
     EDSDK_T2I = 0,
-    EDSDK_MKII
+    EDSDK_MKII,
+    EDSDK_MKIII
 };
 
 class ofxEdsdkCam : public ofxEdsdk::Camera, public ofBaseHasPixels, public ofBaseHasTexture {
@@ -20,6 +21,9 @@ public:
         } else if(deviceType == EDSDK_MKII) {
             forceWidth = 1024;
             forceHeight = 680;
+        } else if(deviceType == EDSDK_MKIII) {
+            forceWidth = 960;
+            forceHeight = 640;
         }
     }
     void initGrabber(int width, int height) {

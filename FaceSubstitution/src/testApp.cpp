@@ -23,13 +23,18 @@ void testApp::setup() {
 	ofSetVerticalSync(true);
     
 #ifdef USE_VIDEO
+    ofLog() << "Loading video.";
     cam.loadMovie("videos/milos-extreme.mov");
     cam.play();
 #else
+    ofLog() << "Setting up camera.";
     cam.setDeviceID(0);
     cam.initGrabber(1280, 720);
     #ifdef USE_EDSDK
-        cam.setDeviceType(EDSDK_MKII);
+    ofLog() << "Using EDSDK.";
+    cam.setDeviceType(EDSDK_T2I);
+    #else
+    ofLog() << "Using webcam.";
     #endif
 #endif
     camTimer.setSmoothing(.5);
@@ -45,11 +50,11 @@ void testApp::setup() {
 	currentFace = 0;
     loadNextPair();
 	
-    faceOsc.osc.setup("localhost", 8338);
+    faceOsc.osc.setup("klaus.local", 8338);
     oscInput.setup(7401);
     
     ofImage distortionMap;
-    distortionMap.loadImage("images/white.png");
+    distortionMap.loadImage("images/white-1056.png");
     slitScan.setup(cam.getWidth(), cam.getHeight(), 100);
     slitScan.setDelayMap(distortionMap);
     slitScan.setBlending(false);
@@ -101,17 +106,19 @@ void testApp::update() {
         faceOsc.sendFaceOsc(camTracker);
         
         // optical flow
-        motionAmplifier.update(slitScan.getOutputImage());
+        if(prevCam.getWidth()) {
+            motionAmplifier.update(slitScan.getOutputImage());
+        }
         
         // step 2: face sub with two different images if possible
         if(camTracker.getFound()) {
-            faceSubstitution.update(camTracker, cam, srcDelayPoints, srcDelay);
+            faceSubstitution.update(camTracker, prevCam, srcDelayPoints, srcDelay);
             faceSubstitution.clone.getTexture().readToPixels(substitutionDelay);
             substitutionDelay.setImageType(OF_IMAGE_COLOR);
             slitScan.addImage(substitutionDelay);
-            faceSubstitution.update(camTracker, cam, srcOriginalPoints, srcOriginal);
+            faceSubstitution.update(camTracker, prevCam, srcOriginalPoints, srcOriginal);
         } else {
-            slitScan.addImage(cam);
+            slitScan.addImage(prevCam);
         }
         
         // step 3: motion amplification
@@ -120,7 +127,7 @@ void testApp::update() {
             if(camTracker.getFound()) {
                 motionAmplifier.draw(faceSubstitution.clone.getTexture());
             } else {
-                motionAmplifier.draw(cam);
+                motionAmplifier.draw(prevCam);
             }
             amplifiedMotionOriginal.end();
             
@@ -128,6 +135,9 @@ void testApp::update() {
             motionAmplifier.draw(slitScan.getOutputImage());
             amplifiedMotionDelay.end();
         }
+        
+        copy(cam, prevCam);
+        prevCam.update();
 	}
 }
 
@@ -135,16 +145,18 @@ void testApp::draw() {
     ofBackground(0);
 	ofSetColor(255);
     
-    float scale = ofGetWidth() / (float) cam.getWidth();
+    float scale = ofGetHeight() / (float) cam.getHeight();
     ofPushMatrix();
+    ofTranslate(ofGetWidth() / 2, 0);
     ofScale(scale, scale);
+    ofTranslate(-cam.getWidth() / 2, 0);
 	
     ofTexture* left;
     ofTexture* right;
     
     if(motionAmplifier.strength != 0) {
-        left = &amplifiedMotionOriginal.getTextureReference();
-        right = &amplifiedMotionDelay.getTextureReference();
+        left = &amplifiedMotionOriginal.getTexture();
+        right = &amplifiedMotionDelay.getTexture();
     } else {
         if(camTracker.getFound()) {
             left = &faceSubstitution.clone.getTexture();
