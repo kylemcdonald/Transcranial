@@ -22,6 +22,8 @@
 		<string>github.com:satoruhiga/ofxKeyValueOSC.git</string>
 		<key>A4D0373C699384D3146D509694B516AB9C7B5AD6</key>
 		<string>github.com:kylemcdonald/ofxFaceTracker.git</string>
+		<key>F4CCB893AFADB97238A965FD2F28717F1CAAE613</key>
+		<string>github.com:kylemcdonald/ofxSyphon.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>FaceCopyWithPiripiri/ofApp.xcodeproj</string>
@@ -39,6 +41,8 @@
 		<string>../../../../addons/ofxKeyValueOSC</string>
 		<key>A4D0373C699384D3146D509694B516AB9C7B5AD6</key>
 		<string>../../../../addons/ofxFaceTracker</string>
+		<key>F4CCB893AFADB97238A965FD2F28717F1CAAE613</key>
+		<string>../../../../addons/ofxSyphon</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>github.com:kylemcdonald/Transcranial.git</string>
@@ -87,6 +91,14 @@
 			<string>A1301D3E45EBFCC7C6EAD4424ED341475B6CBA9B</string>
 			<key>IDESourceControlWCCName</key>
 			<string>ofxKeyValueOSC</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>F4CCB893AFADB97238A965FD2F28717F1CAAE613</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ofxSyphon</string>
 		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
