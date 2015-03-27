@@ -1,8 +1,11 @@
 #include "testApp.h"
 #include "ofxJSONElement.h"
+#include "ofxSyphonClient.h"
+
 using namespace cv;
 using namespace ofxCv;
 ofxOscSender sender;
+ofxSyphonServer syphoneServer;
 
 ofxFaceTracker::Gesture gestureIds[] = {
     ofxFaceTracker::MOUTH_WIDTH,
@@ -29,21 +32,36 @@ string gestureNames[] = {
 int gestureCount = 8;
 bool bExport = false;
 void testApp::save(string filename){
-    
-    // video
+    ofMesh imageMesh, objectMesh;
+    vector<float> curGesture;    // video
     int numFrames = video.getTotalNumFrames();
     for (int i=0; i<numFrames; i++) {
         video.setFrame(i);
         video.update();
         tracker.update(toCv(video));
-        trackedImagePoints.push_back(tracker.getImageMesh());
-        trackedObjectPoints.push_back(tracker.getObjectMesh());
-        vector<float> curGesture;
-        for(int i = 0; i < gestureCount; i++) {
-            curGesture.push_back(tracker.getGesture(gestureIds[i]));
+        if (tracker.getFound()) {
+            imageMesh = tracker.getImageMesh();
+            objectMesh = tracker.getObjectMesh();
+            
+            trackedImagePoints.push_back(imageMesh);
+            trackedObjectPoints.push_back(objectMesh);
+            curGesture.clear();
+            for(int i = 0; i < gestureCount; i++) {
+                curGesture.push_back(tracker.getGesture(gestureIds[i]));
+            }
+            trackedGestures.push_back(curGesture);
+            cout << "push_back tracker data : " << i << " / " << numFrames << endl;
         }
-        trackedGestures.push_back(curGesture);
-        cout << "push_back tracker data : " << i << " / " << numFrames << endl;
+        else{
+            trackedImagePoints.push_back(imageMesh);
+            trackedObjectPoints.push_back(objectMesh);
+            for(int i = 0; i < gestureCount; i++) {
+                curGesture.push_back(tracker.getGesture(gestureIds[i]));
+            }
+            trackedGestures.push_back(curGesture);
+
+            cout << "---------------cant track" << endl;
+        }
     }
     
     // json
@@ -219,15 +237,17 @@ void testApp::setupFacePolygons(){
 }
 
 int currentFrame = 0;
-
+float polygonsAlpha = 1;
+float videoAlpha = 1.;
 
 void testApp::setup() {
+    ofBackground(0, 0, 0);
+//    ofSetDataPathRoot("../../../../../SharedData/");
     ofSetDataPathRoot("../../../../../SharedData/");
-
     sender.setup("localhost", 8877);
     keyvalue.setup(8866);
-
-    video.load("video_PhotoJpeg.mov");
+    syphoneServer.setName("FacePiripiri");
+    video.loadMovie("videos/video.mov");
 
 	tracker.setup();
     tracker.setRescale(.25);
@@ -237,25 +257,23 @@ void testApp::setup() {
     tracker.setAttempts(4);
     
     setupFacePolygons();
-    load("data.json");
-    loadPolygonParameters(polygons, "polygondata.json");
+    load("jsons/data.json");
+    loadPolygonParameters(polygons, "jsons/polygondata.json");
 
 }
 
 void testApp::update() {
-    ofSetWindowTitle(ofToString(currentFrame) + " / " + ofToString(video.getTotalNumFrames()));
-    if (keyvalue.get("/current_frame", currentFrame));
-    cout << currentFrame << endl;
+//    ofSetWindowTitle(ofToString(currentFrame) + " / " + ofToString(video.getTotalNumFrames()));
+    
     if (recordedImagePoints.size()>0) {
-        video.setFrame(currentFrame);
+        keyvalue.get("/current_frame", currentFrame);
+        if ( ofInRange(currentFrame, 0, video.getTotalNumFrames()-1) ) {
+            video.setFrame(currentFrame);
+        }
         video.update();
-
-        Mat mat= toCv(recordedObjectPoints[currentFrame]);
-        classifier.classify(mat);
 
         for (int i=0;i<polygons.size() ;i++ ){
             polygons[i].update(recordedImagePoints[currentFrame]);
-
             //osc
             ofxOscMessage m;
             m.setAddress("/faceparts");
@@ -263,10 +281,7 @@ void testApp::update() {
             m.addFloatArg(polygons[i].getDiffNormArea() );
             sender.sendMessage(m);
         }
-
     }
-
-
 }
 
 void testApp::draw() {
@@ -275,60 +290,17 @@ void testApp::draw() {
         ofPushMatrix();
         float scale = ofGetWidth() / video.getWidth();
         ofScale(scale, scale);
-        ofSetColor(ofColor::white);
+        keyvalue.get("/polygons_alpha", polygonsAlpha);
+        keyvalue.get("/video_alpha", videoAlpha);
+        ofSetColor(ofColor::white, videoAlpha * 255.);
         video.draw(0, 0);
         for (int i=0;i<polygons.size() ;i++ ){
-            polygons[i].draw();
+            polygons[i].draw(polygonsAlpha);
         }
         ofPopMatrix();
     }
-//    else{
-//        ofPushMatrix();
-//        float scale = ofGetWidth() / video.getWidth();
-//        ofScale(scale, scale);
-//        video.draw(0, 0);
-//        ofSetLineWidth(2);
-//        tracker.draw();
-//        ofDrawBitmapString(ofToString((int) ofGetFrameRate()), 10, 20);
-//        ofPopMatrix();
-//    }
-//    drawClassifierInfo();
 
-}
-void testApp::drawClassifierInfo(){
-	int w = 100, h = 12;
-	ofPushStyle();
-	ofPushMatrix();
-	ofTranslate(5, 10);
-	int n = classifier.size();
-	int primary = classifier.getPrimaryExpression();
-    for(int i = 0; i < n; i++){
-		ofSetColor(i == primary ? ofColor::red : ofColor::black);
-		ofRect(0, 0, w * classifier.getProbability(i) + .5, h);
-		ofSetColor(255);
-		ofDrawBitmapString(classifier.getDescription(i), 5, 9);
-		ofTranslate(0, h + 5);
-        ofxOscMessage m;
-        m.setAddress("/probability");
-        m.addIntArg(i);
-        m.addFloatArg(classifier.getProbability(i));
-        sender.sendMessage(m);
-    }
-	ofPopMatrix();
-	ofPopStyle();
-	
-	ofDrawBitmapString(ofToString((int) ofGetFrameRate()), ofGetWidth() - 20, ofGetHeight() - 10);
-	drawHighlightString(
-                        string() +
-                        "L - load json\n" +
-                        "S - save tracker to json\n" +
-                        "r - reset\n" +
-                        "e - add expression\n" +
-                        "a - add sample\n" +
-                        "s - save expressions\n"
-                        "l - load expressions",
-                        14, ofGetHeight() - 7 * 12);
-    
+    syphoneServer.publishScreen();
 }
 void testApp::keyPressed(int key) {
     if(key == 'L'){
@@ -342,11 +314,10 @@ void testApp::keyPressed(int key) {
         if (currentFrame<0) {
             currentFrame = video.getTotalNumFrames() - 2;
         }
-        cout << currentFrame << endl;
     }
     if(key == OF_KEY_RIGHT){
         currentFrame++;
-        if (currentFrame>video.getTotalNumFrames() - 2) {
+        if (currentFrame>video.getTotalNumFrames() - 3) {
             currentFrame =  0;
         }
 
@@ -371,21 +342,4 @@ void testApp::keyPressed(int key) {
             polygons[i].toggleCalibration();
         }
     }
-	if(key == 'r') {
-		tracker.reset();
-		classifier.reset();
-	}
-	if(key == 'e') {
-		classifier.addExpression();
-	}
-	if(key == 'a') {
-        Mat mat= toCv(recordedObjectPoints[currentFrame]);
-		classifier.addSample(mat);
-	}
-	if(key == 's') {
-		classifier.save("expressions");
-	}
-	if(key == 'l') {
-		classifier.load("expressions");
-	}
 }

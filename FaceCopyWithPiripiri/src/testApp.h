@@ -31,6 +31,10 @@ public:
         baseArea = area;
     }
     void update(const ofMesh & mesh){
+        if(mesh.getNumVertices()==0){
+            cout << "failed update " << endl;
+            return;
+        }
         poly.clear();
         for (int i=0; i<ids.size(); i++) {
             poly.addVertex(mesh.getVertices()[ids[i]] );
@@ -49,10 +53,10 @@ public:
         // optmise
         diffNormArea = ofMap(diffNormArea, 0., 0.45, 0.0, 1.0, true);
         //change curve
-        diffNormArea = sin(diffNormArea * PI/2.0);
+//        diffNormArea = sin(diffNormArea * PI/2.0);
     }
-    void draw(){
-        ofSetColor(ofColor::fromHsb(180 * (1 - diffNormArea), 255, 255, 100) );
+    void draw(float alpha = 1.){
+        ofSetColor(ofColor::fromHsb(180 * (1 - diffNormArea), 255, 255, 100 * alpha) );
         ofFill();
         ofSetPolyMode(OF_POLY_WINDING_ODD);
         ofBeginShape();
@@ -118,7 +122,6 @@ public:
     void keyPressed(int key);
     void load(string filename);
     void save(string filename);
-    void drawClassifierInfo();
     void setupFacePolygons();
 
 	ofVideoPlayer video;
@@ -130,7 +133,6 @@ public:
     vector<ofMesh> recordedImagePoints;
     vector<ofMesh> recordedObjectPoints;
     vector<vector<float> > recordedGestures;
-	ExpressionClassifier classifier;
     vector<FacePoly>polygons;
     ofxKeyValueOSC keyvalue;
 };
