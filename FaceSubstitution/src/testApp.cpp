@@ -45,9 +45,16 @@ void testApp::setup() {
     
     faceSubstitution.setup(cam.getWidth(), cam.getHeight());
     
+    useFaceCache = true;
 	faces.allowExt("jpg");
 	faces.listDir("faces");
 	currentFace = 0;
+    if(useFaceCache) {
+        int faceHalfCount = (faces.size() / 2) + 1;
+        for(int i = 0; i < faceHalfCount; i++) {
+            loadNextPair();
+        }
+    }
     loadNextPair();
 	
     faceOsc.osc.setup("klaus.local", 8338);
@@ -82,10 +89,14 @@ void testApp::update() {
         oscInput.getNextMessage(&msg);
         if(msg.getAddress() == "/delay") {
             float delaySeconds = msg.getArgAsFloat(0) / 1000.;
-            int delayFrames = delaySeconds * camTimer.getFrameRate();
-            delayFrames = MIN(delayFrames, slitScan.getCapacity());
-            ofLog() << delaySeconds << " " << delayFrames;
-            slitScan.setTimeDelayAndWidth(delayFrames, 0);
+            ofLog() << "setting delay to " << delaySeconds;
+            if(delaySeconds == 0) {
+                delayLerp.setToValue(0);
+                ofLog() << "setting zero delay";
+            } else {
+                delayLerp.setDuration(6);
+                delayLerp.lerpToValue(delaySeconds);
+            }
         }
     }
     
@@ -138,6 +149,14 @@ void testApp::update() {
         
         copy(cam, prevCam);
         prevCam.update();
+        
+        // only update delay when new frames come from camera
+        // this avoids jitter
+        if(!delayLerp.getDone()) {
+            int delayFrames = MIN(delayLerp.getValue() * 30., slitScan.getCapacity());
+            slitScan.setTimeDelayAndWidth(delayFrames, 0);
+            ofLog() << "setting to int: " << delayFrames;
+        }
 	}
 }
 
@@ -206,10 +225,21 @@ void testApp::loadNextPair() {
 }
 
 void testApp::loadFace(string face, ofImage& src, vector<ofVec2f>& srcPoints){
-	src.loadImage(face);
-	if(src.getWidth() > 0) {
-        srcPoints = faceSubstitution.getSrcPoints(src);
-	}
+    if(useFaceCache && faceImageCache.count(face) > 0) {
+        src = faceImageCache[face];
+        srcPoints = facePointsCache[face];
+        ofLog() << "Loading " << face << " from cache.";
+    } else {
+        src.loadImage(face);
+        if(src.getWidth() > 0) {
+            srcPoints = faceSubstitution.getSrcPoints(src);
+        }
+        if(useFaceCache) {
+            faceImageCache[face] = src;
+            facePointsCache[face] = srcPoints;
+            ofLog() << "Saving " << face << " to cache.";
+        }
+    }
 }
 
 void testApp::dragEvent(ofDragInfo dragInfo) {

@@ -9,7 +9,7 @@
 #include "ofxCv.h"
 #include "ofxFaceTrackerThreaded.h"
 #include "ofxEdsdkCam.h"
-#include "RateTimer.h"
+#include "ofxTiming.h"
 
 #include "FaceOsc.h"
 #include "ofxOscSender.h"
@@ -61,6 +61,9 @@ public:
     ofPixels substitutionDelay;
     
 	ofDirectory faces;
+    bool useFaceCache;
+    map<string, ofImage> faceImageCache;
+    map<string, vector<ofVec2f> > facePointsCache;
 	int currentFace;
 	ofImage srcOriginal, srcDelay;
 	vector<ofVec2f> srcOriginalPoints;
@@ -68,6 +71,7 @@ public:
     
     // delay
     ofxSlitScan slitScan;
+    LerpTimer delayLerp;
     
     // blend
     ofShader lighten;

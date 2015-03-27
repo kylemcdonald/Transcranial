@@ -25,6 +25,7 @@ public:
     }
     template <class T>
     vector<ofVec2f> getSrcPoints(T& img) {
+        tracker.reset();
         tracker.update(ofxCv::toCv(img));
         return tracker.getImagePoints();
     }

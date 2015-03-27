@@ -33,12 +33,11 @@ public:
     ofxOscSender osc;
     
     bool debug = false;
-    bool showVideo = false;
     float rescale = .25;
     float minAreaRadius = 16;
-    float thresholdValue = 60;
+    float thresholdValue = 56;
     float dilationAmount = 2;
-    float verticalOffset = -32;
+    float verticalOffset = -37;
     float bodyCenterSmoothing = .5;
     
     float stability = 1.;//.6; //1.
@@ -76,8 +75,8 @@ public:
         scaleNoise = .1;
         motionSmoothingUp = .99;
         motionSmoothingDown = .33;
-        motionMin = .01;
-        motionMax = .05;
+        motionMin = .005;
+        motionMax = .015;
     }
     
     void loadScene2() {
@@ -92,8 +91,8 @@ public:
         scaleNoise = .1;
         motionSmoothingUp = .99;
         motionSmoothingDown = .92;
-        motionMin = .01;
-        motionMax = .05;
+        motionMin = .005;
+        motionMax = .015;
     }
     
     void loadScene3() {
@@ -118,7 +117,6 @@ public:
         gui->addLabel("Settings");
         gui->addFPS();
         gui->addToggle("Debug", &debug);
-        gui->addToggle("Show video", &showVideo);
         gui->addSlider("Rescale", .1, 1, &rescale);
         gui->addSlider("Threshold", 0, 255, &thresholdValue);
         gui->addSlider("Dilation", 0, 6, &dilationAmount);
@@ -156,7 +154,7 @@ public:
 #else
         video.setup();
         #ifdef USE_EDSDK
-            video.setDeviceType(EDSDK_T2I);
+            video.setDeviceType(EDSDK_MKII);
         #endif
 #endif
         
@@ -290,7 +288,10 @@ public:
             ofTranslate(position);
             for(int j = 0; j < repetitionSteps; j++) {
                 ofPushMatrix();
-                ofRotate(ofMap(j, -1, repetitionSteps, 0, rotation));
+                float rotationAmount = ofMap(j, -1, repetitionSteps, 0, rotation);
+                ofRotate(rotationAmount);
+//                ofVec3f axis(0, 0, 1);
+//                ofRotate(rotationAmount, axis.x, axis.y, axis.z);
                 float curScale = ofMap(j, -1, repetitionSteps, 1, scale);
                 ofScale(curScale, curScale, curScale);
                 buffer.getTextureReference().drawSubsection(-w / 2, -h / 2, 0, w, h, sx, sy);
@@ -310,11 +311,15 @@ public:
         
         if(debug) {
             ofPushStyle();
-            ofEnableBlendMode(OF_BLENDMODE_ADD);
+            ofSetColor(255);
+            ofNoFill();
+            ofSetLineWidth(2);
+            ofDrawRectangle(0, 0, video.getWidth(), video.getHeight());
+            video.draw(0, 0);
+            ofPopStyle();
             
-            if(showVideo) {
-                video.draw(0, 0);
-            }
+            ofPushStyle();
+            ofEnableBlendMode(OF_BLENDMODE_ADD);
             
             ofPushMatrix();
             ofScale(1 / rescale, 1 / rescale);
@@ -335,7 +340,7 @@ public:
             ofPopStyle();
             
 #ifndef USE_VIDEO
-            if(video.isLiveReady()) {
+            if(video.isLiveDataReady()) {
                 stringstream status;
                 status << video.getWidth() << "x" << video.getHeight() << " @ " <<
                 (int) ofGetFrameRate() << " app-fps " << " / " <<
@@ -381,7 +386,7 @@ public:
 
 int main() {
 	ofAppGLFWWindow window;
-    ofSetupOpenGL(&window, 1920, 1200, OF_FULLSCREEN);
+    ofSetupOpenGL(&window, 1920, 1080, OF_FULLSCREEN);
 //	ofSetupOpenGL(&window, 1024, 680, OF_WINDOW); // mkii
 //	ofSetupOpenGL(&window, 1056, 704, OF_WINDOW); // t2i
 	ofRunApp(new ofApp());

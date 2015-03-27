@@ -390,6 +390,12 @@
 		27C3C39F13EBE473002FA441 /* EdsExamples.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EdsExamples.h; sourceTree = "<group>"; };
 		27C3C3BC13EBE53D002FA441 /* EdsExamples.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EdsExamples.cpp; path = ../../../addons/ofxEdsdk/src/EdsWrapper/EdsExamples.cpp; sourceTree = SOURCE_ROOT; };
 		27C3C55C13EC19B7002FA441 /* FixedQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FixedQueue.h; sourceTree = "<group>"; };
+		27FB795F1AC56EEE00508354 /* DelayTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DelayTimer.h; sourceTree = "<group>"; };
+		27FB79601AC56EEE00508354 /* FadeTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FadeTimer.h; sourceTree = "<group>"; };
+		27FB79611AC56EEE00508354 /* Hysteresis.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Hysteresis.h; sourceTree = "<group>"; };
+		27FB79621AC56EEE00508354 /* LerpTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LerpTimer.h; sourceTree = "<group>"; };
+		27FB79631AC56EEE00508354 /* ofxTiming.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ofxTiming.h; sourceTree = "<group>"; };
+		27FB79641AC56EEE00508354 /* RateTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RateTimer.h; sourceTree = "<group>"; };
 		BBAB23BE13894E4700AA2426 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = ../../../libs/glut/lib/osx/GLUT.framework; sourceTree = "<group>"; };
 		E4328143138ABC890047C5CB /* openFrameworksLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openFrameworksLib.xcodeproj; path = ../../../libs/openFrameworksCompiled/project/osx/openFrameworksLib.xcodeproj; sourceTree = SOURCE_ROOT; };
 		E4B69B5B0A3A1756003C02F2 /* ofxEdsdkExampleDebug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ofxEdsdkExampleDebug.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -998,9 +1004,32 @@
 			path = ../../../addons/ofxEdsdk/src/EdsWrapper;
 			sourceTree = SOURCE_ROOT;
 		};
+		27FB795D1AC56EEE00508354 /* ofxTiming */ = {
+			isa = PBXGroup;
+			children = (
+				27FB795E1AC56EEE00508354 /* src */,
+			);
+			name = ofxTiming;
+			sourceTree = "<group>";
+		};
+		27FB795E1AC56EEE00508354 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				27FB795F1AC56EEE00508354 /* DelayTimer.h */,
+				27FB79601AC56EEE00508354 /* FadeTimer.h */,
+				27FB79611AC56EEE00508354 /* Hysteresis.h */,
+				27FB79621AC56EEE00508354 /* LerpTimer.h */,
+				27FB79631AC56EEE00508354 /* ofxTiming.h */,
+				27FB79641AC56EEE00508354 /* RateTimer.h */,
+			);
+			name = src;
+			path = ../../../addons/ofxTiming/src;
+			sourceTree = "<group>";
+		};
 		BB4B014C10F69532006C3DED /* addons */ = {
 			isa = PBXGroup;
 			children = (
+				27FB795D1AC56EEE00508354 /* ofxTiming */,
 				273CCC3118E861A900797599 /* ofxSlitScan */,
 				273CCC0118E8615E00797599 /* ofxFaceTracker */,
 				27975D1518DF0F7D008D804B /* ofxOsc */,
@@ -1420,7 +1449,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)Debug";
-				USER_HEADER_SEARCH_PATHS = "../../../addons/ofxOpenCv/libs/opencv/include/ ../../../addons/ofxCv/libs/ofxCv/include/ ../../../addons/ofxOpenCv/libs/opencv/include/ ../../../addons/ofxCv/libs/ofxCv/include/ ../../../addons/ofxOsc/libs/oscpack/src/ ../../../addons/ofxOsc/libs/oscpack/src/ ../../../addons/ofxFaceTracker/libs/FaceTracker/include/";
+				USER_HEADER_SEARCH_PATHS = "../../../addons/ofxFaceTracker/libs/FaceTracker/include/ ../../../addons/ofxCv/libs/ofxCv/include/ ../../../addons/ofxOpenCv/libs/opencv/include/ ../../../addons/ofxOsc/libs/oscpack/src/";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1512,7 +1541,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "../../../addons/ofxOpenCv/libs/opencv/include/ ../../../addons/ofxCv/libs/ofxCv/include/ ../../../addons/ofxOpenCv/libs/opencv/include/ ../../../addons/ofxCv/libs/ofxCv/include/ ../../../addons/ofxOsc/libs/oscpack/src/ ../../../addons/ofxOsc/libs/oscpack/src/ ../../../addons/ofxFaceTracker/libs/FaceTracker/include/";
+				USER_HEADER_SEARCH_PATHS = "../../../addons/ofxFaceTracker/libs/FaceTracker/include/ ../../../addons/ofxCv/libs/ofxCv/include/ ../../../addons/ofxOpenCv/libs/opencv/include/ ../../../addons/ofxOsc/libs/oscpack/src/";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
