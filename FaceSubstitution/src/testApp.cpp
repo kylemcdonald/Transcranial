@@ -8,6 +8,7 @@ void testApp::setupGui() {
     gui->addToggle("Debug", &(debug=false));
     gui->addSlider("Offset", 0, 600, &(offset=0));
     gui->addSlider("Tracker rescale", .1, 1, &(trackerRescale=.5));
+    gui->addSlider("Delay seconds", 0, 3, &(delaySeconds=0));
     gui->addSlider("Substitution strength", 0, 64, &(substitutionStrength=0));
     gui->addSlider("Motion max", 0, 100, &(motionMax=12));
     gui->addSlider("Motion strength", -100, 100, &motionAmplifier.strength);
@@ -45,20 +46,12 @@ void testApp::setup() {
     
     faceSubstitution.setup(cam.getWidth(), cam.getHeight());
     
-    useFaceCache = true;
-	faces.allowExt("jpg");
-	faces.listDir("faces");
+	faceMeshes.allowExt("ply");
+	faceMeshes.listDir("meshes");
 	currentFace = 0;
-    if(useFaceCache) {
-        int faceHalfCount = (faces.size() / 2) + 1;
-        for(int i = 0; i < faceHalfCount; i++) {
-            loadNextPair();
-        }
-    }
     loadNextPair();
 	
     faceOsc.osc.setup("klaus.local", 8338);
-    oscInput.setup(7401);
     
     ofImage distortionMap;
     distortionMap.loadImage("images/white-1056.png");
@@ -84,21 +77,7 @@ void testApp::exit() {
 }
 
 void testApp::update() {
-    while(oscInput.hasWaitingMessages()) {
-        ofxOscMessage msg;
-        oscInput.getNextMessage(&msg);
-        if(msg.getAddress() == "/delay") {
-            float delaySeconds = msg.getArgAsFloat(0) / 1000.;
-            ofLog() << "setting delay to " << delaySeconds;
-            if(delaySeconds == 0) {
-                delayLerp.setToValue(0);
-                ofLog() << "setting zero delay";
-            } else {
-                delayLerp.setDuration(6);
-                delayLerp.lerpToValue(delaySeconds);
-            }
-        }
-    }
+    delaySeconds = delayLerp.getValue();
     
     float normalizedMotion = ofGetKeyPressed(' ') ? 1 : 0;
     motionAmplifier.strength = normalizedMotion * motionMax;
@@ -153,9 +132,8 @@ void testApp::update() {
         // only update delay when new frames come from camera
         // this avoids jitter
         if(!delayLerp.getDone()) {
-            int delayFrames = MIN(delayLerp.getValue() * 30., slitScan.getCapacity());
-            slitScan.setTimeDelayAndWidth(delayFrames, 0);
-            ofLog() << "setting to int: " << delayFrames;
+            float delayFrames = MIN(delayLerp.getValue() * camTimer.getFrameRate(), slitScan.getCapacity());
+            slitScan.setTimeDelayAndWidth(roundf(delayFrames), 0);
         }
 	}
 }
@@ -218,28 +196,21 @@ void testApp::draw() {
 }
 
 void testApp::loadNextPair() {
-    loadFace(faces.getPath(currentFace), srcOriginal, srcOriginalPoints);
-    currentFace = (currentFace + 1) % faces.size();
-    loadFace(faces.getPath(currentFace), srcDelay, srcDelayPoints);
-    currentFace = (currentFace + 1) % faces.size();
+    loadFace(faceMeshes.getFile(currentFace), srcOriginal, srcOriginalPoints);
+    currentFace = (currentFace + 1) % faceMeshes.size();
+    loadFace(faceMeshes.getFile(currentFace), srcDelay, srcDelayPoints);
+    currentFace = (currentFace + 1) % faceMeshes.size();
 }
 
-void testApp::loadFace(string face, ofImage& src, vector<ofVec2f>& srcPoints){
-    if(useFaceCache && faceImageCache.count(face) > 0) {
-        src = faceImageCache[face];
-        srcPoints = facePointsCache[face];
-        ofLog() << "Loading " << face << " from cache.";
-    } else {
-        src.loadImage(face);
-        if(src.getWidth() > 0) {
-            srcPoints = faceSubstitution.getSrcPoints(src);
-        }
-        if(useFaceCache) {
-            faceImageCache[face] = src;
-            facePointsCache[face] = srcPoints;
-            ofLog() << "Saving " << face << " to cache.";
-        }
+void testApp::loadFace(ofFile faceMesh, ofImage& src, vector<ofVec2f>& srcPoints){
+    ofMesh mesh;
+    mesh.load(faceMesh.path());
+    srcPoints.clear();
+    for(auto vertex : mesh.getVertices()) {
+        srcPoints.push_back(vertex);
     }
+    string faceImage = "faces/" + faceMesh.getBaseName() + ".jpg";
+    src.loadImage(faceImage);
 }
 
 void testApp::dragEvent(ofDragInfo dragInfo) {
@@ -269,6 +240,11 @@ void testApp::mouseDragged(int x, int y, int button) {
 void testApp::keyPressed(int key){
     if(key == '0') {
         offset = 0;
+        delayLerp.setToValue(0);
+    }
+    if(key == OF_KEY_SHIFT) {
+        delayLerp.setDuration(4);
+        delayLerp.lerpToValue(3);
     }
     if(key == 'f') {
         ofToggleFullscreen();
@@ -281,10 +257,14 @@ void testApp::keyPressed(int key){
             ofHideCursor();
         }
     }
+    // if key == ' ' then wait half a sec and change the face
+    // if key == ' ' the first time then fade in the face sub
+    // if key == OF_KEY_SHIFT slowly move face to sides
+    // if keey == '0' need to fade back to single face
 }
 
 void testApp::keyReleased(int key) {
-    if(key == ' ') {
+    if(key == '.') {
         loadNextPair();
     }
 }

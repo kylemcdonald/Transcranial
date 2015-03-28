@@ -25,7 +25,7 @@ public:
 	void draw();
 	void dragEvent(ofDragInfo dragInfo);
     void loadNextPair();
-	void loadFace(string face, ofImage& src, vector<ofVec2f>& srcPoints);
+	void loadFace(ofFile face, ofImage& src, vector<ofVec2f>& srcPoints);
 	
     void mousePressed(int x, int y, int button);
     void mouseDragged(int x, int y, int button);
@@ -38,8 +38,6 @@ public:
     float trackerRescale;
     float substitutionStrength;
     bool debug;
-    
-    ofxOscReceiver oscInput;
     
 #ifdef USE_VIDEO
     ofVideoPlayer cam;
@@ -60,16 +58,14 @@ public:
     FaceSubstitution faceSubstitution;
     ofPixels substitutionDelay;
     
-	ofDirectory faces;
-    bool useFaceCache;
-    map<string, ofImage> faceImageCache;
-    map<string, vector<ofVec2f> > facePointsCache;
+	ofDirectory faceMeshes;
 	int currentFace;
 	ofImage srcOriginal, srcDelay;
 	vector<ofVec2f> srcOriginalPoints;
 	vector<ofVec2f> srcDelayPoints;
     
     // delay
+    float delaySeconds;
     ofxSlitScan slitScan;
     LerpTimer delayLerp;
     

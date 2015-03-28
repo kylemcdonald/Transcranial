@@ -37,10 +37,12 @@ public:
     float minAreaRadius = 16;
     float thresholdValue = 56;
     float dilationAmount = 2;
-    float verticalOffset = -37;
+    float verticalOffset = -8;
     float bodyCenterSmoothing = .5;
     
-    float stability = 1.;//.6; //1.
+    float tintRed = 235, tintGreen = 225, tintBlue = 255;
+    
+    float stability = 0.;//.6; //1.
     float spreadAmplitude = .5;
     float repetitionSteps = 1;//10;
     float rotationAmplitude = 180;//20;
@@ -76,7 +78,7 @@ public:
         motionSmoothingUp = .99;
         motionSmoothingDown = .33;
         motionMin = .005;
-        motionMax = .015;
+        motionMax = .025;
     }
     
     void loadScene2() {
@@ -117,6 +119,9 @@ public:
         gui->addLabel("Settings");
         gui->addFPS();
         gui->addToggle("Debug", &debug);
+        gui->addSlider("Tint red", 220, 255, &tintRed);
+        gui->addSlider("Tint green", 220, 255, &tintGreen);
+        gui->addSlider("Tint blue", 220, 255, &tintBlue);
         gui->addSlider("Rescale", .1, 1, &rescale);
         gui->addSlider("Threshold", 0, 255, &thresholdValue);
         gui->addSlider("Dilation", 0, 6, &dilationAmount);
@@ -285,6 +290,8 @@ public:
             float baseScale = scaleRate * ofGetElapsedTimef() + id;
             float scale = 1 + scaleAmplitude * ofLerp(sin(baseScale), ofSignedNoise(baseScale), scaleNoise) * totalStability;
             
+            ofPushStyle();
+            ofSetColor(tintRed, tintGreen, tintBlue);
             ofTranslate(position);
             for(int j = 0; j < repetitionSteps; j++) {
                 ofPushMatrix();
@@ -297,6 +304,7 @@ public:
                 buffer.getTextureReference().drawSubsection(-w / 2, -h / 2, 0, w, h, sx, sy);
                 ofPopMatrix();
             }
+            ofPopStyle();
             
             if(debug) {
                 ofDrawBitmapStringHighlight(ofToString(contours.getLabel(i)), 0, 0);
