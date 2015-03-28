@@ -8,7 +8,7 @@
 			"architecture" : "x86"
 		}
 ,
-		"rect" : [ 794.0, 390.0, 1135.0, 532.0 ],
+		"rect" : [ 533.0, 455.0, 1135.0, 532.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -363,13 +363,12 @@
 					"fontname" : "Arial",
 					"fontsize" : 12.0,
 					"id" : "obj-40",
-					"linecount" : 3,
 					"maxclass" : "message",
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 55.0, 209.0, 52.0, 45.0 ],
-					"text" : "/current_preset 16"
+					"patching_rect" : [ 55.0, 209.0, 52.0, 18.0 ],
+					"text" : "/ping 1"
 				}
 
 			}
@@ -393,7 +392,8 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 707.0, 345.0, 20.0, 140.0 ],
 					"setminmax" : [ 0.0, 1.0 ],
-					"setstyle" : 1
+					"setstyle" : 1,
+					"slidercolor" : [ 0.5, 0.0, 0.5, 1.0 ]
 				}
 
 			}
@@ -407,7 +407,8 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 687.0, 345.0, 20.0, 140.0 ],
 					"setminmax" : [ 0.0, 1.0 ],
-					"setstyle" : 1
+					"setstyle" : 1,
+					"slidercolor" : [ 0.5, 0.0, 0.5, 1.0 ]
 				}
 
 			}
@@ -421,7 +422,8 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 667.0, 345.0, 20.0, 140.0 ],
 					"setminmax" : [ 0.0, 1.0 ],
-					"setstyle" : 1
+					"setstyle" : 1,
+					"slidercolor" : [ 0.5, 0.0, 0.5, 1.0 ]
 				}
 
 			}
@@ -435,7 +437,8 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 647.0, 345.0, 20.0, 140.0 ],
 					"setminmax" : [ 0.0, 1.0 ],
-					"setstyle" : 1
+					"setstyle" : 1,
+					"slidercolor" : [ 0.5, 0.0, 0.5, 1.0 ]
 				}
 
 			}
@@ -449,7 +452,8 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 627.0, 345.0, 20.0, 140.0 ],
 					"setminmax" : [ 0.0, 1.0 ],
-					"setstyle" : 1
+					"setstyle" : 1,
+					"slidercolor" : [ 0.5, 0.0, 0.5, 1.0 ]
 				}
 
 			}
@@ -463,7 +467,8 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 607.0, 345.0, 20.0, 140.0 ],
 					"setminmax" : [ 0.0, 1.0 ],
-					"setstyle" : 1
+					"setstyle" : 1,
+					"slidercolor" : [ 0.5, 0.0, 0.5, 1.0 ]
 				}
 
 			}
@@ -477,7 +482,8 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 587.0, 345.0, 20.0, 140.0 ],
 					"setminmax" : [ 0.0, 1.0 ],
-					"setstyle" : 1
+					"setstyle" : 1,
+					"slidercolor" : [ 0.5, 0.0, 0.5, 1.0 ]
 				}
 
 			}
@@ -491,7 +497,8 @@
 					"parameter_enable" : 0,
 					"patching_rect" : [ 567.0, 345.0, 20.0, 140.0 ],
 					"setminmax" : [ 0.0, 1.0 ],
-					"setstyle" : 1
+					"setstyle" : 1,
+					"slidercolor" : [ 0.5, 0.0, 0.5, 1.0 ]
 				}
 
 			}
