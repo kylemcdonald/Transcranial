@@ -11,8 +11,6 @@
 #include "ofxEdsdkCam.h"
 #include "ofxTiming.h"
 
-#include "FaceOsc.h"
-#include "ofxOscSender.h"
 #include "MotionAmplifier.h"
 #include "FaceSubstitution.h"
 
@@ -30,7 +28,6 @@ public:
     void mousePressed(int x, int y, int button);
     void mouseDragged(int x, int y, int button);
 	void keyPressed(int key);
-    void keyReleased(int key);
     
     ofxUICanvas* gui;
     float offset;
@@ -53,7 +50,6 @@ public:
     ofxEdsdk::RateTimer camTimer;
     
     // face tracking, face substitution
-    FaceOsc faceOsc;
 	ofxFaceTrackerThreaded camTracker;
     FaceSubstitution faceSubstitution;
     ofPixels substitutionDelay;
@@ -65,9 +61,9 @@ public:
 	vector<ofVec2f> srcDelayPoints;
     
     // delay
-    float delaySeconds;
     ofxSlitScan slitScan;
-    LerpTimer delayLerp;
+    DelayTimer delaySync;
+    float delaySeconds;
     
     // blend
     ofShader lighten;

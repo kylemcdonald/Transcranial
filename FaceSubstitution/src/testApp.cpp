@@ -8,7 +8,6 @@ void testApp::setupGui() {
     gui->addToggle("Debug", &(debug=false));
     gui->addSlider("Offset", 0, 600, &(offset=0));
     gui->addSlider("Tracker rescale", .1, 1, &(trackerRescale=.5));
-    gui->addSlider("Delay seconds", 0, 3, &(delaySeconds=0));
     gui->addSlider("Substitution strength", 0, 64, &(substitutionStrength=0));
     gui->addSlider("Motion max", 0, 100, &(motionMax=12));
     gui->addSlider("Motion strength", -100, 100, &motionAmplifier.strength);
@@ -38,7 +37,7 @@ void testApp::setup() {
     ofLog() << "Using webcam.";
     #endif
 #endif
-    camTimer.setSmoothing(.5);
+    camTimer.setSmoothing(.99);
     
 	camTracker.setup();
     camTracker.setRescale(trackerRescale);
@@ -50,15 +49,12 @@ void testApp::setup() {
 	faceMeshes.listDir("meshes");
 	currentFace = 0;
     loadNextPair();
-	
-    faceOsc.osc.setup("klaus.local", 8338);
-    
-    ofImage distortionMap;
-    distortionMap.loadImage("images/white-1056.png");
+
     slitScan.setup(cam.getWidth(), cam.getHeight(), 100);
-    slitScan.setDelayMap(distortionMap);
     slitScan.setBlending(false);
-    slitScan.setTimeDelayAndWidth(60, 0);
+    slitScan.setTimeDelayAndWidth(0, 0);
+    delaySeconds = 3;
+    delaySync.setPeriod(1);
     
     lighten.load("shaders/Lighten");
     
@@ -76,9 +72,7 @@ void testApp::exit() {
 #endif
 }
 
-void testApp::update() {
-    delaySeconds = delayLerp.getValue();
-    
+void testApp::update() {    
     float normalizedMotion = ofGetKeyPressed(' ') ? 1 : 0;
     motionAmplifier.strength = normalizedMotion * motionMax;
     
@@ -93,7 +87,6 @@ void testApp::update() {
         
         // face tracking
         camTracker.update(toCv(cam));
-        faceOsc.sendFaceOsc(camTracker);
         
         // optical flow
         if(prevCam.getWidth()) {
@@ -129,11 +122,9 @@ void testApp::update() {
         copy(cam, prevCam);
         prevCam.update();
         
-        // only update delay when new frames come from camera
-        // this avoids jitter
-        if(!delayLerp.getDone()) {
-            float delayFrames = MIN(delayLerp.getValue() * camTimer.getFrameRate(), slitScan.getCapacity());
-            slitScan.setTimeDelayAndWidth(roundf(delayFrames), 0);
+        if(delaySync.tick()) {
+            float delayFrames = MIN(delaySeconds * camTimer.getFrameRate(), slitScan.getCapacity());
+            slitScan.setTimeDelayAndWidth(delayFrames, 0);
         }
 	}
 }
@@ -160,7 +151,7 @@ void testApp::draw() {
         } else {
             left = &cam.getTexture();
         }
-        right = &slitScan.getOutputImage().getTextureReference();
+        right = &slitScan.getOutputImage().getTexture();
     }
     
     if(offset != 0) {
@@ -240,11 +231,6 @@ void testApp::mouseDragged(int x, int y, int button) {
 void testApp::keyPressed(int key){
     if(key == '0') {
         offset = 0;
-        delayLerp.setToValue(0);
-    }
-    if(key == OF_KEY_SHIFT) {
-        delayLerp.setDuration(4);
-        delayLerp.lerpToValue(3);
     }
     if(key == 'f') {
         ofToggleFullscreen();
@@ -257,14 +243,12 @@ void testApp::keyPressed(int key){
             ofHideCursor();
         }
     }
+    if(key == '.') {
+        loadNextPair();
+    }
     // if key == ' ' then wait half a sec and change the face
     // if key == ' ' the first time then fade in the face sub
     // if key == OF_KEY_SHIFT slowly move face to sides
     // if keey == '0' need to fade back to single face
 }
 
-void testApp::keyReleased(int key) {
-    if(key == '.') {
-        loadNextPair();
-    }
-}

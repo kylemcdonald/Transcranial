@@ -22,6 +22,14 @@ public:
         tracker.setup();
         tracker.setIterations(30);
         tracker.setAttempts(4);
+        
+        maskFbo.begin();
+        ofClear(0, 255);
+        maskFbo.end();
+        
+        srcFbo.begin();
+        ofClear(0, 255);
+        srcFbo.end();
     }
     template <class T>
     vector<ofVec2f> getSrcPoints(T& img) {
