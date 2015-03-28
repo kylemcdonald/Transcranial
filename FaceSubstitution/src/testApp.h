@@ -30,7 +30,7 @@ public:
 	void keyPressed(int key);
     
     ofxUICanvas* gui;
-    float offset;
+    float maxOffset;
     float motionMax;
     float trackerRescale;
     float substitutionStrength;
@@ -53,6 +53,7 @@ public:
 	ofxFaceTrackerThreaded camTracker;
     FaceSubstitution faceSubstitution;
     ofPixels substitutionDelay;
+    FadeTimer substitutionTimer;
     
 	ofDirectory faceMeshes;
 	int currentFace;
@@ -64,6 +65,9 @@ public:
     ofxSlitScan slitScan;
     DelayTimer delaySync;
     float delaySeconds;
+    
+    bool offsetDirection;
+    FadeTimer offsetTimer;
     
     // blend
     ofShader lighten;

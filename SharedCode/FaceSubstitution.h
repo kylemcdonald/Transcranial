@@ -16,6 +16,8 @@ public:
         ofFbo::Settings settings;
         settings.width = width;
         settings.height = height;
+        settings.useDepth = false;
+        settings.useStencil = false;
         maskFbo.allocate(settings);
         srcFbo.allocate(settings);
         

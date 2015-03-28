@@ -2,14 +2,19 @@
 
 using namespace ofxCv;
 
+float smoothestStep(float t) {
+    float t2 = t * t;
+    return (-20*t2*t+70*t2-84*t+35)*t2*t2;
+}
+
 void testApp::setupGui() {
     gui = new ofxUICanvas();
     gui->addFPS();
     gui->addToggle("Debug", &(debug=false));
-    gui->addSlider("Offset", 0, 600, &(offset=0));
+    gui->addSlider("Max offset", 0, 600, &(maxOffset=250));
     gui->addSlider("Tracker rescale", .1, 1, &(trackerRescale=.5));
-    gui->addSlider("Substitution strength", 0, 64, &(substitutionStrength=0));
-    gui->addSlider("Motion max", 0, 100, &(motionMax=12));
+    gui->addSlider("Substitution strength", 0, 64, &(substitutionStrength=20));
+    gui->addSlider("Motion max", 0, 100, &(motionMax=24));
     gui->addSlider("Motion strength", -100, 100, &motionAmplifier.strength);
     gui->addSlider("Motion learning rate", 0, 1, &motionAmplifier.learningRate);
     gui->addSlider("Motion blur amount", 0, 15, &motionAmplifier.blurAmount);
@@ -44,6 +49,7 @@ void testApp::setup() {
     camTracker.setHaarMinSize(cam.getHeight() / 4);
     
     faceSubstitution.setup(cam.getWidth(), cam.getHeight());
+    substitutionTimer.setLength(10, 0);
     
 	faceMeshes.allowExt("ply");
 	faceMeshes.listDir("meshes");
@@ -55,6 +61,9 @@ void testApp::setup() {
     slitScan.setTimeDelayAndWidth(0, 0);
     delaySeconds = 3;
     delaySync.setPeriod(1);
+    
+    offsetTimer.setLength(.5, 1);
+    offsetDirection = false;
     
     lighten.load("shaders/Lighten");
     
@@ -72,28 +81,30 @@ void testApp::exit() {
 #endif
 }
 
-void testApp::update() {    
-    float normalizedMotion = ofGetKeyPressed(' ') ? 1 : 0;
+void testApp::update() {
+    float normalizedMotion = 0;
+    if(ofGetKeyPressed('1')) normalizedMotion = .33;
+    if(ofGetKeyPressed('2')) normalizedMotion = .66;
+    if(ofGetKeyPressed('3') || ofGetKeyPressed(' ')) normalizedMotion = 1.0;
     motionAmplifier.strength = normalizedMotion * motionMax;
     
+    if(ofGetKeyPressed('a')) motionAmplifier.learningRate = .1;
+    else motionAmplifier.learningRate = .9;
+    
     camTracker.setRescale(trackerRescale);
-    faceSubstitution.clone.setStrength(substitutionStrength);
+    faceSubstitution.clone.setStrength(smoothestStep(substitutionTimer.get()) *substitutionStrength);
     
 	cam.update();
 	if(cam.isFrameNew()) {
         camTimer.tick();
         
-        // step 1: face tracking and optical flow
-        
-        // face tracking
+        // step 1: face tracking and optical flow on current image
         camTracker.update(toCv(cam));
-        
-        // optical flow
         if(prevCam.getWidth()) {
-            motionAmplifier.update(slitScan.getOutputImage());
+            motionAmplifier.update(cam);
         }
         
-        // step 2: face sub with two different images if possible
+        // step 2: face sub onto present and future if possible
         if(camTracker.getFound()) {
             faceSubstitution.update(camTracker, prevCam, srcDelayPoints, srcDelay);
             faceSubstitution.clone.getTexture().readToPixels(substitutionDelay);
@@ -105,7 +116,7 @@ void testApp::update() {
         }
         
         // step 3: motion amplification
-        if(motionAmplifier.strength != 0) {
+        if(motionAmplifier.strength > 0) {
             amplifiedMotionOriginal.begin();
             if(camTracker.getFound()) {
                 motionAmplifier.draw(faceSubstitution.clone.getTexture());
@@ -154,7 +165,8 @@ void testApp::draw() {
         right = &slitScan.getOutputImage().getTexture();
     }
     
-    if(offset != 0) {
+    if(offsetTimer.getActive()) {
+        float offset = smoothestStep(offsetTimer.get()) * maxOffset;
         float w = cam.getWidth();
         float h = cam.getHeight();
         lighten.begin();
@@ -201,7 +213,7 @@ void testApp::loadFace(ofFile faceMesh, ofImage& src, vector<ofVec2f>& srcPoints
         srcPoints.push_back(vertex);
     }
     string faceImage = "faces/" + faceMesh.getBaseName() + ".jpg";
-    src.loadImage(faceImage);
+    src.load(faceImage);
 }
 
 void testApp::dragEvent(ofDragInfo dragInfo) {
@@ -209,28 +221,28 @@ void testApp::dragEvent(ofDragInfo dragInfo) {
 }
 
 int startX, startY;
-float startOffset, startStrength;
+float startStrength;
 void testApp::mousePressed(int x, int y, int button) {
     startX = x;
     startY = y;
-    startOffset = offset;
     startStrength = substitutionStrength;
 }
 
 void testApp::mouseDragged(int x, int y, int button) {
     int xDiff = x - startX;
     int yDiff = y - startY;
-    if(ofGetKeyPressed(OF_KEY_SHIFT)) {
-        offset = startOffset + xDiff;
-    } else {
-        substitutionStrength = startStrength + xDiff / 10;
-        substitutionStrength = ofClamp(substitutionStrength, 0, 64);
-    }
+    substitutionStrength = startStrength + xDiff / 10;
+    substitutionStrength = ofClamp(substitutionStrength, 0, 64);
 }
 
 void testApp::keyPressed(int key){
-    if(key == '0') {
-        offset = 0;
+    if(key == OF_KEY_SHIFT) {
+        offsetDirection = !offsetDirection;
+        if(offsetDirection) {
+            offsetTimer.start();
+        } else {
+            offsetTimer.stop();
+        }
     }
     if(key == 'f') {
         ofToggleFullscreen();
@@ -245,10 +257,7 @@ void testApp::keyPressed(int key){
     }
     if(key == '.') {
         loadNextPair();
+        substitutionTimer.start();
     }
-    // if key == ' ' then wait half a sec and change the face
-    // if key == ' ' the first time then fade in the face sub
-    // if key == OF_KEY_SHIFT slowly move face to sides
-    // if keey == '0' need to fade back to single face
 }
 

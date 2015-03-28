@@ -30,7 +30,7 @@ public:
     
     MotionAmplifier()
     :strength(0)
-    ,learningRate(.95)
+    ,learningRate(.9)
     ,blurAmount(3)
     ,windowSize(8) {
     }
@@ -41,6 +41,7 @@ public:
         scaleFactor = 1. / 10; // could dynamically calculate this from flow3
         needToReset = false;
         
+        // should switch this to an ofPlanePrimitive
         mesh.setMode(OF_PRIMITIVE_TRIANGLES);
         this->stepSize = stepSize;
         xSteps = 1+((rescale * w) / stepSize);
