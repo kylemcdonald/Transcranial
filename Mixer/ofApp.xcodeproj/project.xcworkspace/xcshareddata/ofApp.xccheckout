@@ -5,13 +5,17 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>0DCE7D48-D1F2-4E3D-94D8-F9858715CE5C</string>
+	<string>205C6977-8501-4580-A875-DF7584455313</string>
 	<key>IDESourceControlProjectName</key>
-	<string>ofxEdsdkExample</string>
+	<string>ofApp</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
+		<key>2D0CFF599BAA58060E7C94A3DA240C286FDA626D</key>
+		<string>github.com:kylemcdonald/ofxTiming.git</string>
 		<key>2DE9C8846D9375EAACFABA8963120E8E7719BAF5</key>
 		<string>github.com:kylemcdonald/openFrameworks.git</string>
+		<key>335C6E85F479E38D263669BCC822D09D1C727EE1</key>
+		<string>github.com:kylemcdonald/ofxSlitScan.git</string>
 		<key>36985836DF35EF8F5D7D4E20C1E7B9D301114BDF</key>
 		<string>github.com:kylemcdonald/ofxEdsdk.git</string>
 		<key>37526DA425E5430474A14FBFA1BC4525160B5FC1</key>
@@ -20,13 +24,19 @@
 		<string>github.com:rezaali/ofxUI.git</string>
 		<key>91A3723AF8DD852654FB5F3AD9DCC6A056FF41AD</key>
 		<string>github.com:kylemcdonald/Transcranial.git</string>
+		<key>A4D0373C699384D3146D509694B516AB9C7B5AD6</key>
+		<string>github.com:kylemcdonald/ofxFaceTracker.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>Mixer/ofxEdsdkExample.xcodeproj</string>
+	<string>Mixer/ofApp.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
+		<key>2D0CFF599BAA58060E7C94A3DA240C286FDA626D</key>
+		<string>../../../../addons/ofxTiming</string>
 		<key>2DE9C8846D9375EAACFABA8963120E8E7719BAF5</key>
 		<string>../../../..</string>
+		<key>335C6E85F479E38D263669BCC822D09D1C727EE1</key>
+		<string>../../../../addons/ofxSlitScan</string>
 		<key>36985836DF35EF8F5D7D4E20C1E7B9D301114BDF</key>
 		<string>../../../../addons/ofxEdsdk</string>
 		<key>37526DA425E5430474A14FBFA1BC4525160B5FC1</key>
@@ -35,6 +45,8 @@
 		<string>../../../../addons/ofxUI</string>
 		<key>91A3723AF8DD852654FB5F3AD9DCC6A056FF41AD</key>
 		<string>../../..</string>
+		<key>A4D0373C699384D3146D509694B516AB9C7B5AD6</key>
+		<string>../../../../addons/ofxFaceTracker</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>github.com:kylemcdonald/Transcranial.git</string>
@@ -67,6 +79,30 @@
 			<string>36985836DF35EF8F5D7D4E20C1E7B9D301114BDF</string>
 			<key>IDESourceControlWCCName</key>
 			<string>ofxEdsdk</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>A4D0373C699384D3146D509694B516AB9C7B5AD6</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ofxFaceTracker</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>335C6E85F479E38D263669BCC822D09D1C727EE1</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ofxSlitScan</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>2D0CFF599BAA58060E7C94A3DA240C286FDA626D</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ofxTiming</string>
 		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>

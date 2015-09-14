@@ -25,10 +25,21 @@ void testApp::loadImage() {
     img.load(dir.getPath(index));
     if(!loadFace()) {
         tracker.reset();
+        float startTime = ofGetElapsedTimef();
+        bool good = true;
         for(int i = 0; i < iterations; i++) {
             tracker.update(toCv(img));
+            float curTime = ofGetElapsedTimef();
+            if(curTime - startTime > 2) { // max 2 seconds per face
+                good = false;
+                break;
+            }
         }
-        saveFace();
+        if(good) {
+            saveFace();
+        } else {
+            ofFile(dir.getPath(index)).remove();
+        }
         timer.tick();
     }
 }

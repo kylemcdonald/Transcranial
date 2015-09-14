@@ -1,13 +1,25 @@
-#include "testApp.h"
+#include "ofApp.h"
 
 using namespace ofxCv;
+
+void drawIndicator() {
+    if(ofGetKeyPressed('`')) {
+        ofPushMatrix();
+        ofPushStyle();
+        ofFill();
+        ofSetColor(255, 0, 0);
+        ofDrawCircle(ofGetWidth() - 10, ofGetHeight() - 18, 10);
+        ofPopStyle();
+        ofPopMatrix();
+    }
+}
 
 float smoothestStep(float t) {
     float t2 = t * t;
     return (-20*t2*t+70*t2-84*t+35)*t2*t2;
 }
 
-void testApp::setupGui() {
+void ofApp::setupGui() {
     gui = new ofxUICanvas();
     gui->addFPS();
     gui->addToggle("Debug", &(debug=false));
@@ -23,7 +35,7 @@ void testApp::setupGui() {
     keyPressed('\t');
 }
 
-void testApp::setup() {
+void ofApp::setup() {
     ofSetDataPathRoot("../../../../../SharedData/");
 	ofSetVerticalSync(true);
     
@@ -65,6 +77,11 @@ void testApp::setup() {
     offsetTimer.setLength(.5, 1);
     offsetDirection = false;
     
+    learningRateHysteresis.setDelay(0);
+    learningRateTimer.setLength(.1, .2);
+    normalizedMotionHysteresis.setDelay(0);
+    normalizedMotionTimer.setLength(.1, .2);
+    
     lighten.load("shaders/Lighten");
     
     motionAmplifier.setup(cam.getWidth(), cam.getHeight(), 1, .25);
@@ -74,22 +91,34 @@ void testApp::setup() {
     setupGui();
 }
 
-void testApp::exit() {
+void ofApp::exit() {
     camTracker.stopThread();
 #ifdef USE_EDSDK
     cam.close();
 #endif
 }
 
-void testApp::update() {
-    float normalizedMotion = 0;
-    if(ofGetKeyPressed('1')) normalizedMotion = .33;
-    if(ofGetKeyPressed('2')) normalizedMotion = .66;
-    if(ofGetKeyPressed('3') || ofGetKeyPressed(' ')) normalizedMotion = 1.0;
-    motionAmplifier.strength = normalizedMotion * motionMax;
+void ofApp::update() {
+    float normalizedMotion = 1.0;
+    if(ofGetKeyPressed('q')) {
+        normalizedMotion = .33;
+        normalizedMotionHysteresis.update(true);
+    } else if(ofGetKeyPressed('w')) {
+        normalizedMotion = .66;
+        normalizedMotionHysteresis.update(true);
+    } else if(ofGetKeyPressed('e')) {
+        normalizedMotion = 1.0;
+        normalizedMotionHysteresis.update(true);
+    } else {
+        normalizedMotionHysteresis.update(false);
+    }
+    normalizedMotionTimer.update(normalizedMotionHysteresis);
+    motionAmplifier.strength = normalizedMotion * motionMax * normalizedMotionTimer.get();
     
-    if(ofGetKeyPressed('a')) motionAmplifier.learningRate = .1;
-    else motionAmplifier.learningRate = .9;
+    learningRateHysteresis.set(ofGetKeyPressed('c'));
+    learningRateTimer.update(learningRateHysteresis);
+    float learningRate = ofMap(learningRateTimer.get(), 0, 1, .90, .01);
+    motionAmplifier.learningRate = learningRate;
     
     camTracker.setRescale(trackerRescale);
     faceSubstitution.clone.setStrength(smoothestStep(substitutionTimer.get()) *substitutionStrength);
@@ -140,7 +169,7 @@ void testApp::update() {
 	}
 }
 
-void testApp::draw() {
+void ofApp::draw() {
     ofBackground(0);
 	ofSetColor(255);
     
@@ -166,10 +195,12 @@ void testApp::draw() {
     }
     
     if(offsetTimer.getActive()) {
+        float opacity = offsetTimer.get();
         float offset = smoothestStep(offsetTimer.get()) * maxOffset;
         float w = cam.getWidth();
         float h = cam.getHeight();
         lighten.begin();
+        lighten.setUniform1f("opacity", opacity);
         lighten.setUniform2f("resolution", w, h);
         lighten.setUniformTexture("a", *left, 1);
         lighten.setUniformTexture("b", *right, 2);
@@ -180,6 +211,11 @@ void testApp::draw() {
         ofPushMatrix();
         ofTranslate(left->getWidth(), 0);
         ofScale(-1, 1);
+        if(camTracker.getFound() && ofGetKeyPressed('c')) {
+            ofVec2f position = camTracker.getPosition();
+            position -= ofVec2f(cam.getWidth(), cam.getHeight()) / 2;
+            ofTranslate(-position.x, -position.y);
+        }
         left->draw(0, 0);
         ofPopMatrix();
     }
@@ -196,16 +232,20 @@ void testApp::draw() {
     }
     
     ofPopMatrix();
+    
+    drawIndicator();
 }
 
-void testApp::loadNextPair() {
+void ofApp::loadNextPair() {
     loadFace(faceMeshes.getFile(currentFace), srcOriginal, srcOriginalPoints);
     currentFace = (currentFace + 1) % faceMeshes.size();
     loadFace(faceMeshes.getFile(currentFace), srcDelay, srcDelayPoints);
-    currentFace = (currentFace + 1) % faceMeshes.size();
+    if(offsetTimer.getActive()) {
+        currentFace = (currentFace + 1) % faceMeshes.size();
+    }
 }
 
-void testApp::loadFace(ofFile faceMesh, ofImage& src, vector<ofVec2f>& srcPoints){
+void ofApp::loadFace(ofFile faceMesh, ofImage& src, vector<ofVec2f>& srcPoints){
     ofMesh mesh;
     mesh.load(faceMesh.path());
     srcPoints.clear();
@@ -216,26 +256,26 @@ void testApp::loadFace(ofFile faceMesh, ofImage& src, vector<ofVec2f>& srcPoints
     src.load(faceImage);
 }
 
-void testApp::dragEvent(ofDragInfo dragInfo) {
-	loadFace(dragInfo.files[0], srcOriginal, srcOriginalPoints);
+void ofApp::dragEvent(ofDragInfo dragInfo) {
+	loadFace(ofFile(dragInfo.files[0]), srcOriginal, srcOriginalPoints);
 }
 
 int startX, startY;
 float startStrength;
-void testApp::mousePressed(int x, int y, int button) {
+void ofApp::mousePressed(int x, int y, int button) {
     startX = x;
     startY = y;
     startStrength = substitutionStrength;
 }
 
-void testApp::mouseDragged(int x, int y, int button) {
+void ofApp::mouseDragged(int x, int y, int button) {
     int xDiff = x - startX;
     int yDiff = y - startY;
     substitutionStrength = startStrength + xDiff / 10;
     substitutionStrength = ofClamp(substitutionStrength, 0, 64);
 }
 
-void testApp::keyPressed(int key){
+void ofApp::keyPressed(int key){
     if(key == OF_KEY_SHIFT) {
         offsetDirection = !offsetDirection;
         if(offsetDirection) {
@@ -246,6 +286,11 @@ void testApp::keyPressed(int key){
     }
     if(key == 'f') {
         ofToggleFullscreen();
+    }
+    if(key == 'g') {
+        ofSetFullscreen(false);
+        ofSetWindowPosition(ofGetScreenWidth() + 100, 100);
+        ofSetFullscreen(true);
     }
     if(key == '\t') {
         gui->toggleVisible();
@@ -258,6 +303,9 @@ void testApp::keyPressed(int key){
     if(key == '.') {
         loadNextPair();
         substitutionTimer.start();
+    }
+    if(key == OF_KEY_BACKSPACE) {
+        substitutionTimer.stop();
     }
 }
 

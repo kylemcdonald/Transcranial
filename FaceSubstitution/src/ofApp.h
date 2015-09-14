@@ -1,7 +1,7 @@
 #pragma once
 
 //#define USE_VIDEO
-//#define USE_EDSDK
+#define USE_EDSDK
 
 #include "ofMain.h"
 #include "ofxSlitScan.h"
@@ -14,7 +14,7 @@
 #include "MotionAmplifier.h"
 #include "FaceSubstitution.h"
 
-class testApp : public ofBaseApp {
+class ofApp : public ofBaseApp {
 public:
     void setupGui();
 	void setup();
@@ -68,6 +68,11 @@ public:
     
     bool offsetDirection;
     FadeTimer offsetTimer;
+    
+    Hysteresis learningRateHysteresis;
+    FadeTimer learningRateTimer;
+    Hysteresis normalizedMotionHysteresis;
+    FadeTimer normalizedMotionTimer;
     
     // blend
     ofShader lighten;

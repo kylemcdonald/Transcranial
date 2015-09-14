@@ -4,6 +4,7 @@
 #include "ofxEdsdkCam.h"
 #include "ofxUI.h"
 #include "ofxOsc.h"
+#include "ofxTiming.h"
 #include "FrameDifference.h"
 
 //#define USE_VIDEO
@@ -11,6 +12,23 @@
 
 using namespace ofxCv;
 using namespace cv;
+
+void drawIndicator() {
+    if(ofGetKeyPressed('`')) {
+        ofPushMatrix();
+        ofPushStyle();
+        ofFill();
+        ofSetColor(255, 0, 0);
+        ofDrawCircle(ofGetWidth() - 10, ofGetHeight() - 18, 10);
+        ofPopStyle();
+        ofPopMatrix();
+    }
+}
+
+float smoothestStep(float t) {
+    float t2 = t * t;
+    return (-20*t2*t+70*t2-84*t+35)*t2*t2;
+}
 
 class ofApp : public ofBaseApp {
 public:
@@ -26,6 +44,7 @@ public:
     ofFbo buffer;
     ofxUICanvas* gui;
     
+    FadeTimer stabilityFade;
     FrameDifference motion;
     RunningBackground motionRunning;
     Mat thresholdedRunning;
@@ -33,14 +52,17 @@ public:
     ofxOscSender osc;
     
     bool debug = false;
+    bool bggray = false;
     float rescale = .25;
-    float minAreaRadius = 16;
-    float thresholdValue = 56;
+    float minAreaRadius = 10;
+    float thresholdValue = 55; //72;
     float dilationAmount = 2;
-    float verticalOffset = -8;
+    float verticalOffset = 30;//-8;
+    float horizontalOffset = 0;
+    float scaling = .91;//1.02;
     float bodyCenterSmoothing = .5;
     
-    float tintRed = 235, tintGreen = 225, tintBlue = 255;
+    float tintRed = 255, tintGreen = 225, tintBlue = 255;
     
     float stability = 0.;//.6; //1.
     float spreadAmplitude = .5;
@@ -54,7 +76,7 @@ public:
     float motionMin = .02 / 5; // .01
     float motionMax = .02 / 3; //.005;
     
-    const float motionRange = .1;
+    const float motionRange = .02;
     const float motionLearningTime = .250;
     float motionValue = 0;
     float smoothedMotionValue = 0;
@@ -66,7 +88,8 @@ public:
     ofVec2f bodyCenter;
     
     void loadScene1() {
-        stability = 0;
+        stabilityFade.start();
+//        stability = 0;
         spreadAmplitude = .5;
         repetitionSteps = 1;
         rotationAmplitude = 180;
@@ -77,12 +100,13 @@ public:
         scaleNoise = .1;
         motionSmoothingUp = .99;
         motionSmoothingDown = .33;
-        motionMin = .005;
-        motionMax = .025;
+        motionMin = .006;
+        motionMax = .012;
     }
     
     void loadScene2() {
-        stability = 0;
+        stabilityFade.start();
+//        stability = 0;
         spreadAmplitude = 2;
         repetitionSteps = 1;
         rotationAmplitude = 0;
@@ -93,12 +117,13 @@ public:
         scaleNoise = .1;
         motionSmoothingUp = .99;
         motionSmoothingDown = .92;
-        motionMin = .005;
-        motionMax = .015;
+        motionMin = .006;
+        motionMax = .016;
     }
     
     void loadScene3() {
-        stability = 0;
+        stabilityFade.start();
+//        stability = 0;
         spreadAmplitude = 2;
         repetitionSteps = 40;
         rotationAmplitude = 360;
@@ -109,8 +134,8 @@ public:
         scaleNoise = .1;
         motionSmoothingUp = .96;
         motionSmoothingDown = .07;
-        motionMin = .005;
-        motionMax = .030;
+        motionMin = .006;
+        motionMax = .024;
     }
     
     
@@ -119,13 +144,16 @@ public:
         gui->addLabel("Settings");
         gui->addFPS();
         gui->addToggle("Debug", &debug);
+        gui->addToggle("Gray Background", &bggray);
         gui->addSlider("Tint red", 220, 255, &tintRed);
         gui->addSlider("Tint green", 220, 255, &tintGreen);
         gui->addSlider("Tint blue", 220, 255, &tintBlue);
+        gui->addSlider("Scaling", .5, 1.5, &scaling);
         gui->addSlider("Rescale", .1, 1, &rescale);
         gui->addSlider("Threshold", 0, 255, &thresholdValue);
         gui->addSlider("Dilation", 0, 6, &dilationAmount);
         gui->addSlider("Vertical offset", -100, 100, &verticalOffset);
+        gui->addSlider("Horizontal offset", -300, 300, &horizontalOffset);
         gui->addSlider("Body center smoothing", 0, 1, &bodyCenterSmoothing);
         gui->addSpacer();
         gui->addSlider("Min area radius", 0, 50, &minAreaRadius);
@@ -162,6 +190,7 @@ public:
             video.setDeviceType(EDSDK_MKII);
         #endif
 #endif
+        stabilityFade.setLength(30, .5);
         
         ofFbo::Settings settings;
         settings.width = video.getWidth();
@@ -230,15 +259,26 @@ public:
     }
     
     void draw() {
-        ofBackground(0);
+        if(!ofGetKeyPressed('b')) {
+            ofBackground(bggray ? 128 : 0);
+        }
+        if(ofGetKeyPressed('l')) {
+            ofEnableBlendMode(OF_BLENDMODE_SCREEN);
+        } else {
+            ofEnableAlphaBlending();
+        }
         
         ofPushMatrix();
         ofPushStyle();
         
+        ofTranslate(ofGetWidth() / 2, ofGetHeight() / 2);
         float scaleFactor = ofGetHeight() / (float) MAX(1, video.getHeight());
         ofScale(scaleFactor, scaleFactor);
-        ofTranslate(0, -verticalOffset);
+        ofScale(scaling, scaling);
+        ofTranslate(-video.getWidth() / 2, -video.getHeight() / 2);
+        ofTranslate(horizontalOffset, verticalOffset);
         
+        stability = smoothestStep(stabilityFade.get());
         float totalStability = ofClamp(ofMap(smoothedMotionValue, motionMin, motionMax, 0, stability), 0, 1);
         
         int n = contours.size();
@@ -301,7 +341,7 @@ public:
 //                ofRotate(rotationAmount, axis.x, axis.y, axis.z);
                 float curScale = ofMap(j, -1, repetitionSteps, 1, scale);
                 ofScale(curScale, curScale, curScale);
-                buffer.getTextureReference().drawSubsection(-w / 2, -h / 2, 0, w, h, sx, sy);
+                buffer.getTexture().drawSubsection(-w / 2, -h / 2, 0, w, h, sx, sy);
                 ofPopMatrix();
             }
             ofPopStyle();
@@ -311,7 +351,13 @@ public:
             }
             ofPopMatrix();
         }
-            
+        
+        if(debug) {
+            ofNoFill();
+            ofSetColor(255);
+            ofRectangle(0, 0, video.getWidth(), video.getHeight());
+        }
+
         ofPopStyle();
         ofPopMatrix();
         
@@ -344,7 +390,7 @@ public:
             }
             ofNoFill();
             ofSetColor(cyanPrint);
-            ofCircle(bodyCenter, 10);
+            ofDrawCircle(bodyCenter, 10);
             ofPopStyle();
             
 #ifndef USE_VIDEO
@@ -357,6 +403,8 @@ public:
             }
 #endif
         }
+        
+        drawIndicator();
     }
     
     int startX, startY;
@@ -376,13 +424,23 @@ public:
         if(key == 'f') {
             ofToggleFullscreen();
         }
+        if(key == 'g') {
+            ofSetFullscreen(false);
+            ofSetWindowPosition(ofGetScreenWidth() + 100, 100);
+            ofSetFullscreen(true);
+        }
         if(key == '\t') {
             gui->toggleVisible();
             if(gui->isVisible()) {
+                debug = true;
                 ofShowCursor();
             } else {
+                debug = false;
                 ofHideCursor();
             }
+        }
+        if(key == OF_KEY_BACKSPACE) {
+            stabilityFade.stop();
         }
         switch(key) {
             case '1': loadScene1(); break;
@@ -393,9 +451,6 @@ public:
 };
 
 int main() {
-	ofAppGLFWWindow window;
-    ofSetupOpenGL(&window, 1920, 1080, OF_FULLSCREEN);
-//	ofSetupOpenGL(&window, 1024, 680, OF_WINDOW); // mkii
-//	ofSetupOpenGL(&window, 1056, 704, OF_WINDOW); // t2i
+    ofSetupOpenGL(1920, 1080, OF_FULLSCREEN);
 	ofRunApp(new ofApp());
 }

@@ -1,6 +1,7 @@
 #version 120
 
 uniform sampler2DRect a, b;
+uniform float opacity;
 uniform vec2 offset;
 uniform vec2 resolution;
 varying vec2 texCoord;
@@ -18,5 +19,5 @@ vec4 clampedSample(sampler2DRect rect, vec2 texCoord) {
 
 void main() {
     gl_FragColor = max(clampedSample(a, invTexCoord - offset),
-                       clampedSample(b, texCoord - offset));
+                       clampedSample(b, texCoord - offset) * opacity);
 }

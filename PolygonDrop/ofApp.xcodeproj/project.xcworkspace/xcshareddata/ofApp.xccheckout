@@ -5,36 +5,32 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>29AE5A13-C5CD-4D2A-B5A9-8BADCEF00A34</string>
+	<string>41214B94-CC95-4F45-98DE-443E24F51F24</string>
 	<key>IDESourceControlProjectName</key>
 	<string>ofApp</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>2D0CFF599BAA58060E7C94A3DA240C286FDA626D</key>
-		<string>github.com:kylemcdonald/ofxTiming.git</string>
 		<key>2DE9C8846D9375EAACFABA8963120E8E7719BAF5</key>
 		<string>github.com:kylemcdonald/openFrameworks.git</string>
 		<key>37526DA425E5430474A14FBFA1BC4525160B5FC1</key>
 		<string>github.com:kylemcdonald/ofxCv.git</string>
+		<key>903165F9FDCB952EAE50578862E56DA722F43224</key>
+		<string>github.com:vanderlin/ofxBox2d.git</string>
 		<key>91A3723AF8DD852654FB5F3AD9DCC6A056FF41AD</key>
 		<string>github.com:kylemcdonald/Transcranial.git</string>
-		<key>A4D0373C699384D3146D509694B516AB9C7B5AD6</key>
-		<string>github.com:kylemcdonald/ofxFaceTracker.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>ProcessCrowdFaces/ofApp.xcodeproj</string>
+	<string>PolygonDrop/ofApp.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>2D0CFF599BAA58060E7C94A3DA240C286FDA626D</key>
-		<string>../../../../addons/ofxTiming</string>
 		<key>2DE9C8846D9375EAACFABA8963120E8E7719BAF5</key>
 		<string>../../../..</string>
 		<key>37526DA425E5430474A14FBFA1BC4525160B5FC1</key>
 		<string>../../../../addons/ofxCv</string>
+		<key>903165F9FDCB952EAE50578862E56DA722F43224</key>
+		<string>../../../../addons/ofxBox2d</string>
 		<key>91A3723AF8DD852654FB5F3AD9DCC6A056FF41AD</key>
 		<string>../../..</string>
-		<key>A4D0373C699384D3146D509694B516AB9C7B5AD6</key>
-		<string>../../../../addons/ofxFaceTracker</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>github.com:kylemcdonald/Transcranial.git</string>
@@ -56,25 +52,17 @@
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>903165F9FDCB952EAE50578862E56DA722F43224</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ofxBox2d</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
 			<string>37526DA425E5430474A14FBFA1BC4525160B5FC1</string>
 			<key>IDESourceControlWCCName</key>
 			<string>ofxCv</string>
-		</dict>
-		<dict>
-			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
-			<string>public.vcs.git</string>
-			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>A4D0373C699384D3146D509694B516AB9C7B5AD6</string>
-			<key>IDESourceControlWCCName</key>
-			<string>ofxFaceTracker</string>
-		</dict>
-		<dict>
-			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
-			<string>public.vcs.git</string>
-			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>2D0CFF599BAA58060E7C94A3DA240C286FDA626D</string>
-			<key>IDESourceControlWCCName</key>
-			<string>ofxTiming</string>
 		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
