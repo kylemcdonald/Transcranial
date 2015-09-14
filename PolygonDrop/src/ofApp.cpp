@@ -6,12 +6,14 @@ static bool shouldRemove(shared_ptr<ofxBox2dBaseShape>shape) {
 
 //--------------------------------------------------------------
 void ofApp::setup() {
-	
-    ofDisableAntiAliasing();
+    ofSetVerticalSync(true);
 	ofBackgroundHex(0xfdefc2);
 	ofSetLogLevel(OF_LOG_NOTICE);
-	ofSetVerticalSync(true);
 	
+    cam.initGrabber(640, 480);
+    contourFinder.setMinAreaRadius(10);
+    contourFinder.setMaxAreaRadius(200);
+    
 	// Box2d
 	box2d.init();
 	box2d.setGravity(0, 10);
@@ -46,11 +48,21 @@ vector <ofPoint> ofApp::loadPoints(string file) {
 void ofApp::update() {
     // remove shapes offscreen
     ofRemove(polyShapes, shouldRemove);
-	box2d.update();	
+	box2d.update();
+    
+    cam.update();
+    if(cam.isFrameNew()) {
+        contourFinder.setThreshold(ofMap(mouseX, 0, ofGetWidth(), 0, 255));
+        contourFinder.findContours(cam);
+    }
 }
 
 //--------------------------------------------------------------
 void ofApp::draw() {
+    ofSetColor(255);
+    cam.draw(0, 0);
+    contourFinder.draw();
+    
 	ofSetHexColor(0x444342);
 	ofFill();
 	shape.draw();
