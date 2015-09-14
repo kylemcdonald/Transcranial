@@ -9,7 +9,7 @@ public:
 	void update(ofTexture& src, ofTexture& dst, ofTexture& mask);
 	void draw(float x, float y);
     ofTexture& getTexture() {
-        return buffer.getTextureReference();
+        return buffer.getTexture();
     }
 	
 protected:
