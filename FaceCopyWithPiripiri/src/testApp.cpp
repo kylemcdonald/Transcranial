@@ -30,7 +30,7 @@ string gestureNames[] = {
 };
 
 int gestureCount = 8;
-bool bExport = false;
+bool bExport = true;
 void testApp::save(string filename){
     ofMesh imageMesh, objectMesh;
     vector<float> curGesture;    // video
@@ -247,8 +247,10 @@ void testApp::setup() {
     sender.setup("localhost", 8877);
     keyvalue.setup(8866);
     syphoneServer.setName("FacePiripiri");
-    video.loadMovie("videos/video.mov");
-
+    video.loadMovie("videos/transcranial_scopiton_1080.MOV");
+    cout << " -- video.getTotalNumFrames() "<< endl;
+    cout << video.getTotalNumFrames() << endl;
+    ofSetWindowShape(video.getWidth(), video.getHeight());
 	tracker.setup();
     tracker.setRescale(.25);
     tracker.setIterations(100);
@@ -267,12 +269,14 @@ void testApp::update() {
     
     if (recordedImagePoints.size()>0) {
         keyvalue.get("/current_frame", currentFrame);
+        currentFrame = ofClamp(currentFrame, 0, recordedImagePoints.size()-1);
         if ( ofInRange(currentFrame, 0, video.getTotalNumFrames()-1) ) {
             video.setFrame(currentFrame);
         }
         video.update();
 
         for (int i=0;i<polygons.size() ;i++ ){
+
             polygons[i].update(recordedImagePoints[currentFrame]);
             //osc
             ofxOscMessage m;
