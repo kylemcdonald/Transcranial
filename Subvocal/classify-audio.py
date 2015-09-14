@@ -4,6 +4,7 @@ import pyaudio
 import matplotlib.pyplot as plt
 
 from sklearn import lda
+from sklearn.svm import SVC
 
 import scipy.fftpack as sfft
 from scipy.io import wavfile
@@ -13,6 +14,8 @@ import numpy as np
 import math
 from collections import defaultdict
 
+from OSC import OSCServer, OSCClient, OSCMessage
+
 import os
 
 from time import time
@@ -20,6 +23,9 @@ from time import time
 N = 1024
 
 p5.size(1024, 512)
+
+client = OSCClient()
+client.connect(('127.0.0.1', 9999))
 
 recent = []
 window = blackman(N)
@@ -31,11 +37,13 @@ def getAmplitude(data):
 	nyquist = len(freq)/2
 	return np.absolute(freq[:nyquist])
 
+clf = SVC(probability=True, kernel = 'rbf')
 model = lda.LDA(n_components=2)
 projection = []
 p_min = None
 p_max = None
 predicted = None
+
 def buildLDA(vectors, labels):
 	global model, projection, p_min, p_max
 	if not len(vectors):
@@ -46,10 +54,23 @@ def buildLDA(vectors, labels):
 	y = np.array(labels)
 	X.flat[::X.shape[1] + 1] += 0.01  # Make X invertible
 	projection = model.fit_transform(X, y)
+	clf.fit(X,y)
+
 	p_min, p_max = np.min(projection, 0), np.max(projection, 0)
 	projection = (projection - p_min) / (p_max - p_min)
 	tdelta = time() - t0
 	print('Projected {} vectors in {} seconds.'.format(len(vectors), tdelta))
+
+def send_osc_message(name, *args):
+	msg = OSCMessage(name)
+	for arg in args:
+		msg.append(arg)
+	try:
+		client.send(msg, 0)
+	except Exception, e:
+		pass
+#	msg.clear
+	return 
 
 def draw():
 	p5.colorMode(p5.RGB)
@@ -62,9 +83,16 @@ def draw():
 		p5.scale(width/2, height/2)
 		for point, label in zip(projection, labels):
 			p5.stroke(p5.color(label * 26., 255, 255))
-			p5.point(point[0], point[1])
+			p5.point(point[0], point[1])			
+
 		p5.popMatrix()
-		
+        #send osc to MaxPatch
+		probability_lda = model.predict_proba([getAmplitude(recent)])
+		send_osc_message("/lda",probability_lda)
+
+		probability_svc = clf.predict_proba([getAmplitude(recent)])
+		send_osc_message("/svm",probability_svc)
+
 		cur = model.transform([getAmplitude(recent)])
 		cur = cur[0]
 		cur = (cur - p_min) / (p_max - p_min)
