@@ -4,7 +4,39 @@
 
 using namespace cv;
 using namespace ofxCv;
-ofxOscSender sender;
+
+class ofxOscMultiSender
+{
+public:
+
+    void setup(std::string hostname, int port)
+    {
+        ofxOscSender *sender = new ofxOscSender();
+        sender->setup(hostname, port);
+        senders.push_back(SenderPtr(sender));
+    }
+
+    void sendMessage( ofxOscMessage& message )
+    {
+        for (int i = 0; i < senders.size(); i++)
+            senders[i]->sendMessage(message);
+    }
+
+    void sendBundle( ofxOscBundle& bundle )
+    {
+        for (int i = 0; i < senders.size(); i++)
+            senders[i]->sendBundle(bundle);
+    }
+
+protected:
+    
+    typedef ofPtr<ofxOscSender> SenderPtr;
+    vector<SenderPtr> senders;
+};
+
+
+
+ofxOscMultiSender sender;
 ofxSyphonServer syphoneServer;
 
 ofxFaceTracker::Gesture gestureIds[] = {
@@ -245,6 +277,8 @@ void testApp::setup() {
 //    ofSetDataPathRoot("../../../../../SharedData/");
     ofSetDataPathRoot("../../../../../SharedData/");
     sender.setup("localhost", 8877);
+    sender.setup("10.0.0.2", 8877);
+    
     keyvalue.setup(8866);
     syphoneServer.setName("FacePiripiri");
     video.loadMovie("videos/transcranial_scopiton_1080.MOV");
